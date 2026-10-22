@@ -172,7 +172,7 @@ COMMON_CSS = """
 </style>
 """
 
-# 1ST STEP: REGISTER & LOGIN HTML
+# HTML TEMPLATES
 REGISTER_HTML = """<!DOCTYPE html>
 <html>
 <head>
@@ -243,7 +243,6 @@ LOGIN_HTML = """<!DOCTYPE html>
 </body>
 </html>"""
 
-# 2ND STEP: ACTIVATION KEY HTML
 ACTIVATE_HTML = """<!DOCTYPE html>
 <html>
 <head>
@@ -276,7 +275,6 @@ ACTIVATE_HTML = """<!DOCTYPE html>
 </body>
 </html>"""
 
-# MAIN DASHBOARD HTML
 DASHBOARD_HTML = """<!DOCTYPE html>
 <html>
 <head>
@@ -460,7 +458,6 @@ DASHBOARD_HTML = """<!DOCTYPE html>
 </body>
 </html>"""
 
-# ADMIN PANEL HTML
 ADMIN_HTML = """<!DOCTYPE html>
 <html>
 <head>
@@ -520,14 +517,18 @@ ADMIN_HTML = """<!DOCTYPE html>
 </body>
 </html>"""
 
+# ROUTES
 @app.route('/')
 def index():
     if 'user' in session:
         if session.get('role') == 'admin':
             return redirect(url_for('admin_panel'))
         
-        conn = sqlite3.connect('database.db')
-        cursor = conn.cursor()
-        cursor.execute("SELECT is_activated FROM users WHERE username = ?", (session['user'],))
-        row = cursor.fetchone()
-      
+        try:
+            conn = sqlite3.connect('database.db')
+            cursor = conn.cursor()
+            cursor.execute("SELECT is_activated FROM users WHERE username = ?", (session['user'],))
+            row = cursor.fetchone()
+            conn.close()
+            
+            if row a
