@@ -64,6 +64,138 @@ body { font-family: 'Plus Jakarta Sans', sans-serif; background: #020617; color:
 .modal-content { background: #0f172a; border: 1px solid #38bdf8; border-radius: 20px; padding: 20px; max-width: 380px; width: 100%; position: relative; }
 """
 
+DASHBOARD_HTML = """<!DOCTYPE html><html><head><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>STC ULTRA ANALYZER</title><style>""" + BASE_STYLE + """</style></head><body>
+    <div class="mobile-frame">
+        <div class="top-nav">
+            <div class="brand-name">Live Signal</div>
+            <div class="user-icon"><a href="/logout" style="color:#38bdf8; text-decoration:none; font-size:14px;">👤</a></div>
+        </div>
+        <div class="market-tabs">
+            <div class="tab-item active">OTC Market</div>
+            <div class="tab-item">Real Market</div>
+        </div>
+        <div class="upload-area" onclick="document.getElementById('screenshotInput').click()">
+            <div style="font-size:24px; color:#38bdf8; margin-bottom:4px;">📷</div>
+            <div style="font-family:'Orbitron'; font-size:11px; font-weight:700; color:#e2e8f0;">UPLOAD CHART SCREENSHOT</div>
+            <div style="font-size:10px; color:#64748b; margin-top:2px;">AI Auto-Detects Pair & Signals</div>
+            <input type="file" id="screenshotInput" accept="image/*" style="display:none;" onchange="autoAnalyze(this)">
+        </div>
+        <div id="loadingBox" style="display:none; text-align:center; padding:15px; color:#38bdf8; font-family:'Orbitron'; font-size:11px;">⚡ SCANNING CHART PATTERNS...</div>
+        <div id="analysisResult" style="display:none;">
+            <div class="live-card">
+                <div>
+                    <div style="font-size:9px; color:#94a3b8; font-family:'Orbitron';">LIVE ASSET PAIR</div>
+                    <div style="font-family:'Orbitron'; font-size:18px; font-weight:900; color:#fff;" id="detectedPair">USD/PHP <span style="font-size:10px; background:#0f172a; padding:2px 6px; border-radius:4px; color:#38bdf8;">OTC</span></div>
+                </div>
+                <div style="font-size:20px;">🇺🇸🇵🇭</div>
+            </div>
+            <div class="direction-card" id="dirCard">
+                <div class="dir-circle" id="dirArrow">↓</div>
+                <div>
+                    <div style="font-size:9px; color:#94a3b8; font-family:'Orbitron';">NEXT CANDLE DIRECTION</div>
+                    <div style="font-family:'Orbitron'; font-size:24px; font-weight:900;" id="dirText">DOWN</div>
+                    <div style="font-size:10px; font-weight:700; color:#e2e8f0;" id="dirSub">PUT / SELL</div>
+                </div>
+            </div>
+            <div style="background:rgba(15,23,42,0.8); border:1px solid rgba(56,189,248,0.2); border-radius:14px; padding:12px; margin-bottom:10px;">
+                <div style="display:flex; justify-content:space-between; font-size:10px; font-family:'Orbitron'; margin-bottom:6px;">
+                    <span style="color:#94a3b8;">SIGNAL STRENGTH</span>
+                    <span style="color:#fbbf24;" id="strengthLabel">Medium</span>
+                </div>
+                <div style="height:6px; background:#1e293b; border-radius:3px; overflow:hidden;">
+                    <div id="strengthBar" style="width:70%; height:100%; background:linear-gradient(90deg, #38bdf8, #fbbf24);"></div>
+                </div>
+            </div>
+            <div class="grid-2">
+                <div class="info-box">
+                    <div style="font-size:9px; color:#94a3b8; font-family:'Orbitron';">MARKET TREND</div>
+                    <div style="font-size:13px; font-weight:800; color:#f43f5e; margin-top:4px;" id="trendVal">Bearish</div>
+                </div>
+                <div class="info-box">
+                    <div style="font-size:9px; color:#94a3b8; font-family:'Orbitron';">TRAP LEVEL</div>
+                    <div style="font-size:13px; font-weight:800; color:#fbbf24; margin-top:4px;" id="trapVal">Medium</div>
+                </div>
+            </div>
+            <div class="grid-2">
+                <div class="info-box">
+                    <div style="font-size:9px; color:#94a3b8; font-family:'Orbitron';">SUPPORT</div>
+                    <div style="font-size:13px; font-weight:800; color:#e2e8f0; margin-top:4px;" id="supVal">62.702</div>
+                </div>
+                <div class="info-box">
+                    <div style="font-size:9px; color:#94a3b8; font-family:'Orbitron';">RESISTANCE</div>
+                    <div style="font-size:13px; font-weight:800; color:#e2e8f0; margin-top:4px;" id="resVal">62.746</div>
+                </div>
+            </div>
+            <button class="btn-cyan" onclick="openLogicModal()">👁 View Logic & Manipulation</button>
+            <button class="btn-cyan" style="background:transparent; border:1px solid #06b6d4; color:#06b6d4;" onclick="document.getElementById('screenshotInput').click()">🔄 Analyze Another Signal</button>
+        </div>
+        <div class="bottom-nav">
+            <div class="nav-btn">📊<br>Dashboard</div>
+            <div class="nav-btn active">📡<br>Live Signal</div>
+            <div class="nav-btn">📈<br>Analyzer</div>
+            <div class="nav-btn">⏰<br>Future</div>
+            <div class="nav-btn">💳<br>Money</div>
+        </div>
+    </div>
+    <div class="modal" id="logicModal">
+        <div class="modal-content">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                <div style="font-family:'Orbitron'; font-size:13px; font-weight:800; color:#38bdf8;">TRAP & MAIN LOGIC</div>
+                <span style="color:#f43f5e; cursor:pointer; font-weight:bold;" onclick="closeLogicModal()">&times;</span>
+            </div>
+            <div id="logicTextContent" style="font-size:12px; color:#cbd5e1; line-height:1.6; white-space:pre-wrap;"></div>
+        </div>
+    </div>
+    <script>
+        async function autoAnalyze(input) {
+            if(input.files.length === 0) return;
+            const loadingBox = document.getElementById('loadingBox');
+            const resultBox = document.getElementById('analysisResult');
+            resultBox.style.display = 'none';
+            loadingBox.style.display = 'block';
+            const reader = new FileReader();
+            reader.onload = async function() {
+                const base64Image = reader.result.split(',')[1];
+                try {
+                    const response = await fetch('/analyze', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ image: base64Image })
+                    });
+                    const data = await response.json();
+                    loadingBox.style.display = 'none';
+                    if (data.status === 'success') {
+                        document.getElementById('detectedPair').innerText = data.pair + " OTC";
+                        const dir = data.direction.toUpperCase();
+                        const dirText = document.getElementById('dirText');
+                        const dirCard = document.getElementById('dirCard');
+                        const dirArrow = document.getElementById('dirArrow');
+                        dirText.innerText = dir;
+                        if(dir.includes('CALL') || dir.includes('UP') || dir.includes('BUY')) {
+                            dirCard.className = 'direction-card up-bg';
+                            dirArrow.innerText = '↑';
+                            document.getElementById('dirSub').innerText = 'CALL / BUY';
+                        } else {
+                            dirCard.className = 'direction-card';
+                            dirArrow.innerText = '↓';
+                            document.getElementById('dirSub').innerText = 'PUT / SELL';
+                        }
+                        document.getElementById('trendVal').innerText = data.trend || 'Bearish';
+                        document.getElementById('trapVal').innerText = data.trap_level || 'Medium';
+                        document.getElementById('supVal').innerText = data.support || 'Auto';
+                        document.getElementById('resVal').innerText = data.resistance || 'Auto';
+                        document.getElementById('strengthLabel').innerText = data.strength || 'Medium';
+                        document.getElementById('logicTextContent').innerText = data.reasoning;
+                        resultBox.style.display = 'block';
+                    } else { alert(data.message); }
+                } catch (err) { loadingBox.style.display = 'none'; alert('Analysis Failed!'); }
+            };
+            reader.readAsDataURL(input.files[0]);
+        }
+        function openLogicModal() { document.getElementById('logicModal').style.display = 'flex'; }
+        function closeLogicModal() { document.getElementById('logicModal').style.display = 'none'; }
+    </script></body></html>"""
+
 @app.route('/')
 def index():
     if 'user' in session:
@@ -165,137 +297,4 @@ def activate():
         return redirect('/login')
     error_msg = ""
     if request.method == 'POST':
-        key = request.form.get('license_key', '').strip()
-        valid_keys = ["STC-146625-@@-$$", "STC-999999-@@-$$", "STC-ULTRA-2026-VIP"]
-        if key in valid_keys or key.startswith("STC-"):
-            conn = sqlite3.connect('database.db')
-            cursor = conn.cursor()
-            cursor.execute("UPDATE users SET is_activated = 1 WHERE username = ?", (session['user'],))
-            conn.commit()
-            conn.close()
-            return redirect('/dashboard')
-        error_msg = "<div style='color:#f43f5e; font-size:12px; margin-bottom:10px;'>Invalid Key!</div>"
-
-    html = f"""<!DOCTYPE html><html><head><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>STC ULTRA - Activate</title><style>{BASE_STYLE}</style></head><body>
-    <div class="mobile-frame" style="justify-content:center;">
-        <div style="text-align:center; margin-bottom:25px;">
-            <div style="font-family:'Orbitron'; font-size:20px; font-weight:900; color:#38bdf8;">LICENSE ACTIVATION</div>
-            <div style="font-size:11px; color:#94a3b8; margin-top:5px;">ENTER KEY TO UNLOCK DASHBOARD</div>
-        </div>
-        {error_msg}
-        <form method="POST">
-            <input type="text" name="license_key" autocomplete="off" required style="width:100%; padding:14px; background:#0f172a; border:1px solid #38bdf8; color:#38bdf8; font-family:'Orbitron'; text-align:center; font-weight:bold; border-radius:10px; margin-bottom:15px;">
-            <button type="submit" class="btn-cyan">VERIFY KEY</button>
-        </form>
-        <a href="https://t.me/ownerstcsakib" target="_blank" style="display:block; text-align:center; margin-top:15px; color:#38bdf8; text-decoration:none; font-family:'Orbitron'; font-size:11px;">CONTACT ADMIN FOR KEY</a>
-        <div style="text-align:center; margin-top:15px;"><a href="/logout" style="color:#f43f5e; text-decoration:none; font-size:11px;">Logout Account</a></div>
-    </div></body></html>"""
-    return Response(html, mimetype='text/html')
-
-@app.route('/dashboard')
-def dashboard():
-    if 'user' not in session:
-        return redirect('/login')
-        
-    html = f"""<!DOCTYPE html><html><head><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>STC ULTRA ANALYZER</title><style>{BASE_STYLE}</style></head><body>
-    <div class="mobile-frame">
-        <div class="top-nav">
-            <div class="brand-name">Live Signal</div>
-            <div class="user-icon"><a href="/logout" style="color:#38bdf8; text-decoration:none; font-size:14px;">👤</a></div>
-        </div>
-        <div class="market-tabs">
-            <div class="tab-item active">OTC Market</div>
-            <div class="tab-item">Real Market</div>
-        </div>
-        <div class="upload-area" onclick="document.getElementById('screenshotInput').click()">
-            <div style="font-size:24px; color:#38bdf8; margin-bottom:4px;">📷</div>
-            <div style="font-family:'Orbitron'; font-size:11px; font-weight:700; color:#e2e8f0;">UPLOAD CHART SCREENSHOT</div>
-            <div style="font-size:10px; color:#64748b; margin-top:2px;">AI Auto-Detects Pair & Signals</div>
-            <input type="file" id="screenshotInput" accept="image/*" style="display:none;" onchange="autoAnalyze(this)">
-        </div>
-        <div id="loadingBox" style="display:none; text-align:center; padding:15px; color:#38bdf8; font-family:'Orbitron'; font-size:11px;">⚡ SCANNING CHART PATTERNS...</div>
-        <div id="analysisResult" style="display:none;">
-            <div class="live-card">
-                <div>
-                    <div style="font-size:9px; color:#94a3b8; font-family:'Orbitron';">LIVE ASSET PAIR</div>
-                    <div style="font-family:'Orbitron'; font-size:18px; font-weight:900; color:#fff;" id="detectedPair">USD/PHP <span style="font-size:10px; background:#0f172a; padding:2px 6px; border-radius:4px; color:#38bdf8;">OTC</span></div>
-                </div>
-                <div style="font-size:20px;">🇺🇸🇵🇭</div>
-            </div>
-            <div class="direction-card" id="dirCard">
-                <div class="dir-circle" id="dirArrow">↓</div>
-                <div>
-                    <div style="font-size:9px; color:#94a3b8; font-family:'Orbitron';">NEXT CANDLE DIRECTION</div>
-                    <div style="font-family:'Orbitron'; font-size:24px; font-weight:900;" id="dirText">DOWN</div>
-                    <div style="font-size:10px; font-weight:700; color:#e2e8f0;" id="dirSub">PUT / SELL</div>
-                </div>
-            </div>
-            <div style="background:rgba(15,23,42,0.8); border:1px solid rgba(56,189,248,0.2); border-radius:14px; padding:12px; margin-bottom:10px;">
-                <div style="display:flex; justify-content:space-between; font-size:10px; font-family:'Orbitron'; margin-bottom:6px;">
-                    <span style="color:#94a3b8;">SIGNAL STRENGTH</span>
-                    <span style="color:#fbbf24;" id="strengthLabel">Medium</span>
-                </div>
-                <div style="height:6px; background:#1e293b; border-radius:3px; overflow:hidden;">
-                    <div id="strengthBar" style="width:70%; height:100%; background:linear-gradient(90deg, #38bdf8, #fbbf24);"></div>
-                </div>
-            </div>
-            <div class="grid-2">
-                <div class="info-box">
-                    <div style="font-size:9px; color:#94a3b8; font-family:'Orbitron';">MARKET TREND</div>
-                    <div style="font-size:13px; font-weight:800; color:#f43f5e; margin-top:4px;" id="trendVal">Bearish</div>
-                </div>
-                <div class="info-box">
-                    <div style="font-size:9px; color:#94a3b8; font-family:'Orbitron';">TRAP LEVEL</div>
-                    <div style="font-size:13px; font-weight:800; color:#fbbf24; margin-top:4px;" id="trapVal">Medium</div>
-                </div>
-            </div>
-            <div class="grid-2">
-                <div class="info-box">
-                    <div style="font-size:9px; color:#94a3b8; font-family:'Orbitron';">SUPPORT</div>
-                    <div style="font-size:13px; font-weight:800; color:#e2e8f0; margin-top:4px;" id="supVal">62.702</div>
-                </div>
-                <div class="info-box">
-                    <div style="font-size:9px; color:#94a3b8; font-family:'Orbitron';">RESISTANCE</div>
-                    <div style="font-size:13px; font-weight:800; color:#e2e8f0; margin-top:4px;" id="resVal">62.746</div>
-                </div>
-            </div>
-            <button class="btn-cyan" onclick="openLogicModal()">👁 View Logic & Manipulation</button>
-            <button class="btn-cyan" style="background:transparent; border:1px solid #06b6d4; color:#06b6d4;" onclick="document.getElementById('screenshotInput').click()">🔄 Analyze Another Signal</button>
-        </div>
-        <div class="bottom-nav">
-            <div class="nav-btn">📊<br>Dashboard</div>
-            <div class="nav-btn active">📡<br>Live Signal</div>
-            <div class="nav-btn">📈<br>Analyzer</div>
-            <div class="nav-btn">⏰<br>Future</div>
-            <div class="nav-btn">💳<br>Money</div>
-        </div>
-    </div>
-    <div class="modal" id="logicModal">
-        <div class="modal-content">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-                <div style="font-family:'Orbitron'; font-size:13px; font-weight:800; color:#38bdf8;">TRAP & MAIN LOGIC</div>
-                <span style="color:#f43f5e; cursor:pointer; font-weight:bold;" onclick="closeLogicModal()">&times;</span>
-            </div>
-            <div id="logicTextContent" style="font-size:12px; color:#cbd5e1; line-height:1.6; white-space:pre-wrap;"></div>
-        </div>
-    </div>
-    <script>
-        async function autoAnalyze(input) {{
-            if(input.files.length === 0) return;
-            const loadingBox = document.getElementById('loadingBox');
-            const resultBox = document.getElementById('analysisResult');
-            resultBox.style.display = 'none';
-            loadingBox.style.display = 'block';
-            const reader = new FileReader();
-            reader.onload = async function() {{
-                const base64Image = reader.result.split(',')[1];
-                try {{
-                    const response = await fetch('/analyze', {{
-                        method: 'POST',
-                        headers: {{ 'Content-Type': 'application/json' }},
-                        body: JSON.stringify({{ image: base64Image }})
-                    });
-                    const data = await response.json();
-                    loadingBox.style.display = 'none';
-                    if (data.status === 'success') {{
-                      
+        key = request.fo
