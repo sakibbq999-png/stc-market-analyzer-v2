@@ -6,7 +6,7 @@ from flask import Flask, request, jsonify, session, redirect, Response
 from groq import Groq
 
 app = Flask(__name__)
-app.secret_key = os.environ.get("SECRET_KEY", "stc_ultra_secret_key_999")
+app.secret_key = os.environ.get("SECRET_KEY", "stc_ultra_secret_key_99")
 PORT = int(os.environ.get("PORT", 5000))
 
 # Groq API Setup
@@ -37,8 +37,7 @@ def init_db():
 
 init_db()
 
-COMMON_HEAD = """<!DOCTYPE html><html><head><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>STC ULTRA ANALYZER</title>
-<style>
+BASE_STYLE = """
 @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body { font-family: 'Plus Jakarta Sans', sans-serif; background: #020617; color: #f8fafc; min-height: 100vh; display: flex; justify-content: center; align-items: center; padding: 10px; }
@@ -63,25 +62,21 @@ body { font-family: 'Plus Jakarta Sans', sans-serif; background: #020617; color:
 .nav-btn.active { color: #38bdf8; }
 .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); z-index: 100; justify-content: center; align-items: center; padding: 20px; }
 .modal-content { background: #0f172a; border: 1px solid #38bdf8; border-radius: 20px; padding: 20px; max-width: 380px; width: 100%; position: relative; }
-</style></head><body>"""
+"""
 
 @app.route('/')
 def index():
     if 'user' in session:
         if session.get('role') == 'admin':
             return redirect('/admin')
-        
         conn = sqlite3.connect('database.db')
         cursor = conn.cursor()
         cursor.execute("SELECT is_activated FROM users WHERE username = ?", (session['user'],))
         row = cursor.fetchone()
         conn.close()
-        
         if row and row[0] == 1:
             return redirect('/dashboard')
-        else:
-            return redirect('/activate')
-            
+        return redirect('/activate')
     return redirect('/login')
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -90,13 +85,11 @@ def login():
     if request.method == 'POST':
         username = request.form.get('username', '').strip()
         password = request.form.get('password', '').strip()
-        
         conn = sqlite3.connect('database.db')
         cursor = conn.cursor()
         cursor.execute("SELECT * FROM users WHERE username = ? AND password = ?", (username, password))
         user = cursor.fetchone()
         conn.close()
-        
         if user:
             session['user'] = user[1]
             session['role'] = user[4]
@@ -105,18 +98,16 @@ def login():
                 return redirect('/admin')
             if user[5] == 1:
                 return redirect('/dashboard')
-            else:
-                return redirect('/activate')
-        else:
-            error_msg = "<div style='color:#f43f5e; font-size:12px; margin-bottom:10px;'>Invalid credentials!</div>"
+            return redirect('/activate')
+        error_msg = "<div style='color:#f43f5e; font-size:12px; margin-bottom:10px;'>Invalid credentials!</div>"
 
-    html = COMMON_HEAD + """
+    html = f"""<!DOCTYPE html><html><head><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>STC ULTRA - Login</title><style>{BASE_STYLE}</style></head><body>
     <div class="mobile-frame" style="justify-content:center;">
         <div style="text-align:center; margin-bottom:30px;">
             <div style="font-family:'Orbitron'; font-size:22px; font-weight:900; color:#38bdf8;">STC ULTRA</div>
             <div style="font-size:12px; color:#94a3b8; margin-top:5px;">AI CHART ANALYZER LOGIN</div>
         </div>
-        """ + error_msg + """
+        {error_msg}
         <form method="POST">
             <div style="margin-bottom:15px;"><label style="font-size:11px; color:#94a3b8; font-family:'Orbitron';">USERNAME</label>
             <input type="text" name="username" required style="width:100%; padding:12px; background:#0f172a; border:1px solid rgba(56,189,248,0.3); color:#fff; border-radius:10px; margin-top:5px;"></div>
@@ -125,8 +116,7 @@ def login():
             <button type="submit" class="btn-cyan">LOGIN SYSTEM</button>
         </form>
         <div style="text-align:center; margin-top:20px; font-size:12px; color:#94a3b8;">No account? <a href="/register" style="color:#38bdf8; text-decoration:none;">Register</a></div>
-    </div></body></html>
-    """
+    </div></body></html>"""
     return Response(html, mimetype='text/html')
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -136,7 +126,6 @@ def register():
         username = request.form.get('username', '').strip()
         email = request.form.get('email', '').strip()
         password = request.form.get('password', '').strip()
-        
         try:
             conn = sqlite3.connect('database.db')
             cursor = conn.cursor()
@@ -144,20 +133,19 @@ def register():
                            (username, email, password, 'user', 0))
             conn.commit()
             conn.close()
-            
             session['user'] = username
             session['role'] = 'user'
             return redirect('/activate')
         except sqlite3.IntegrityError:
             error_msg = "<div style='color:#f43f5e; font-size:12px; margin-bottom:10px;'>Username taken!</div>"
 
-    html = COMMON_HEAD + """
+    html = f"""<!DOCTYPE html><html><head><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>STC ULTRA - Register</title><style>{BASE_STYLE}</style></head><body>
     <div class="mobile-frame" style="justify-content:center;">
         <div style="text-align:center; margin-bottom:30px;">
             <div style="font-family:'Orbitron'; font-size:22px; font-weight:900; color:#38bdf8;">STC ULTRA</div>
             <div style="font-size:12px; color:#94a3b8; margin-top:5px;">CREATE NEW ACCOUNT</div>
         </div>
-        """ + error_msg + """
+        {error_msg}
         <form method="POST">
             <div style="margin-bottom:12px;"><label style="font-size:11px; color:#94a3b8; font-family:'Orbitron';">USERNAME</label>
             <input type="text" name="username" required style="width:100%; padding:12px; background:#0f172a; border:1px solid rgba(56,189,248,0.3); color:#fff; border-radius:10px; margin-top:4px;"></div>
@@ -168,20 +156,17 @@ def register():
             <button type="submit" class="btn-cyan">CREATE ACCOUNT</button>
         </form>
         <div style="text-align:center; margin-top:20px; font-size:12px; color:#94a3b8;">Already registered? <a href="/login" style="color:#38bdf8; text-decoration:none;">Login</a></div>
-    </div></body></html>
-    """
+    </div></body></html>"""
     return Response(html, mimetype='text/html')
 
 @app.route('/activate', methods=['GET', 'POST'])
 def activate():
     if 'user' not in session:
         return redirect('/login')
-        
     error_msg = ""
     if request.method == 'POST':
         key = request.form.get('license_key', '').strip()
         valid_keys = ["STC-146625-@@-$$", "STC-999999-@@-$$", "STC-ULTRA-2026-VIP"]
-        
         if key in valid_keys or key.startswith("STC-"):
             conn = sqlite3.connect('database.db')
             cursor = conn.cursor()
@@ -189,23 +174,22 @@ def activate():
             conn.commit()
             conn.close()
             return redirect('/dashboard')
-        else:
-            error_msg = "<div style='color:#f43f5e; font-size:12px; margin-bottom:10px;'>Invalid Key!</div>"
+        error_msg = "<div style='color:#f43f5e; font-size:12px; margin-bottom:10px;'>Invalid Key!</div>"
 
-    html = COMMON_HEAD + """
+    html = f"""<!DOCTYPE html><html><head><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>STC ULTRA - Activate</title><style>{BASE_STYLE}</style></head><body>
     <div class="mobile-frame" style="justify-content:center;">
         <div style="text-align:center; margin-bottom:25px;">
             <div style="font-family:'Orbitron'; font-size:20px; font-weight:900; color:#38bdf8;">LICENSE ACTIVATION</div>
             <div style="font-size:11px; color:#94a3b8; margin-top:5px;">ENTER KEY TO UNLOCK DASHBOARD</div>
         </div>
-        """ + error_msg + """
+        {error_msg}
         <form method="POST">
             <input type="text" name="license_key" autocomplete="off" required style="width:100%; padding:14px; background:#0f172a; border:1px solid #38bdf8; color:#38bdf8; font-family:'Orbitron'; text-align:center; font-weight:bold; border-radius:10px; margin-bottom:15px;">
             <button type="submit" class="btn-cyan">VERIFY KEY</button>
         </form>
         <a href="https://t.me/ownerstcsakib" target="_blank" style="display:block; text-align:center; margin-top:15px; color:#38bdf8; text-decoration:none; font-family:'Orbitron'; font-size:11px;">CONTACT ADMIN FOR KEY</a>
-    </div></body></html>
-    """
+        <div style="text-align:center; margin-top:15px;"><a href="/logout" style="color:#f43f5e; text-decoration:none; font-size:11px;">Logout Account</a></div>
+    </div></body></html>"""
     return Response(html, mimetype='text/html')
 
 @app.route('/dashboard')
@@ -213,7 +197,7 @@ def dashboard():
     if 'user' not in session:
         return redirect('/login')
         
-    dashboard_body = """
+    html = f"""<!DOCTYPE html><html><head><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>STC ULTRA ANALYZER</title><style>{BASE_STYLE}</style></head><body>
     <div class="mobile-frame">
         <div class="top-nav">
             <div class="brand-name">Live Signal</div>
@@ -296,28 +280,22 @@ def dashboard():
         </div>
     </div>
     <script>
-        async function autoAnalyze(input) {
+        async function autoAnalyze(input) {{
             if(input.files.length === 0) return;
             const loadingBox = document.getElementById('loadingBox');
             const resultBox = document.getElementById('analysisResult');
             resultBox.style.display = 'none';
             loadingBox.style.display = 'block';
             const reader = new FileReader();
-            reader.onload = async function() {
+            reader.onload = async function() {{
                 const base64Image = reader.result.split(',')[1];
-                try {
-                    const response = await fetch('/analyze', {
+                try {{
+                    const response = await fetch('/analyze', {{
                         method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ image: base64Image })
+                        headers: {{ 'Content-Type': 'application/json' }},
+                        body: JSON.stringify({{ image: base64Image }})
                     });
                     const data = await response.json();
                     loadingBox.style.display = 'none';
-                    if (data.status === 'success') {
-                        document.getElementById('detectedPair').innerText = data.pair + " OTC";
-                        const dir = data.direction.toUpperCase();
-                        const dirText = document.getElementById('dirText');
-                        const dirCard = document.getElementById('dirCard');
-                        const dirArrow = document.getElementById('dirArrow');
-                        dirText.innerText = dir;
-               
+                    if (data.status === 'success') {{
+                      
