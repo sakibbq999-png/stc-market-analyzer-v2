@@ -2,7 +2,7 @@ import os
 import json
 import sqlite3
 import base64
-from flask import Flask, request, jsonify, session, redirect, url_for, Response
+from flask import Flask, request, jsonify, session, redirect, Response
 from groq import Groq
 
 app = Flask(__name__)
@@ -29,91 +29,190 @@ def init_db():
     if not cursor.fetchone():
         cursor.execute("INSERT INTO users (username, email, password, role, is_activated) VALUES (?, ?, ?, ?, ?)", 
                        ('admin', 'admin@stc.com', 'admin123', 'admin', 1))
+    else:
+        cursor.execute("UPDATE users SET role = 'admin', is_activated = 1 WHERE username = 'admin'")
     
     conn.commit()
     conn.close()
 
 init_db()
 
-# SHARED CSS
+# EXACT VIDEO & SCREENSHOT UI STYLES
 COMMON_STYLE = """<style>
-@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800;900&family=Rajdhani:wght@500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
+
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body {
-    font-family: 'Rajdhani', sans-serif;
-    background: radial-gradient(circle at center, #0f172a 0%, #020617 100%);
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    background: #020617;
     color: #f8fafc;
     min-height: 100vh;
     display: flex;
     justify-content: center;
     align-items: center;
-    padding: 20px;
-    overflow-x: hidden;
+    padding: 10px;
 }
-.glass-card {
+
+.mobile-frame {
     width: 100%;
-    max-width: 440px;
-    background: rgba(15, 23, 42, 0.75);
-    backdrop-filter: blur(16px);
-    border-radius: 24px;
-    padding: 30px 25px;
-    border: 1px solid rgba(56, 189, 248, 0.25);
-    box-shadow: 0 0 35px rgba(6, 182, 212, 0.15);
-    text-align: center;
+    max-width: 420px;
+    background: #060b19;
+    border-radius: 28px;
+    padding: 20px 16px;
+    border: 1px solid rgba(56, 189, 248, 0.2);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8);
+    position: relative;
+    min-height: 840px;
+    display: flex;
+    flex-direction: column;
 }
-.brand-title {
-    font-family: 'Orbitron', sans-serif;
-    font-size: 22px;
-    font-weight: 900;
-    background: linear-gradient(135deg, #38bdf8, #a855f7, #f43f5e);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    letter-spacing: 2px;
+
+.top-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     margin-bottom: 20px;
 }
-.form-group { margin-bottom: 16px; text-align: left; }
-label { display: block; margin-bottom: 6px; color: #94a3b8; font-size: 12px; font-weight: 600; }
-input, select {
-    width: 100%;
-    padding: 12px 14px;
-    background: rgba(30, 41, 59, 0.6);
-    border: 1px solid rgba(56, 189, 248, 0.2);
+.brand-name {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 18px;
+    font-weight: 800;
     color: #f8fafc;
-    border-radius: 10px;
-    font-size: 14px;
-    outline: none;
 }
-input:focus, select:focus { border-color: #38bdf8; box-shadow: 0 0 10px rgba(56, 189, 248, 0.4); }
-.btn-neon {
+.user-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: radial-gradient(circle, #38bdf8 0%, #030712 100%);
+    border: 1px solid #38bdf8;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 0 10px rgba(56, 189, 248, 0.5);
+}
+
+.market-tabs {
+    display: flex;
+    background: rgba(15, 23, 42, 0.9);
+    border-radius: 12px;
+    padding: 4px;
+    border: 1px solid rgba(56, 189, 248, 0.2);
+    margin-bottom: 18px;
+}
+.tab-item {
+    flex: 1;
+    padding: 10px;
+    text-align: center;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    border-radius: 8px;
+    color: #94a3b8;
+    cursor: pointer;
+}
+.tab-item.active {
+    background: #06b6d4;
+    color: #020617;
+    box-shadow: 0 0 15px rgba(6, 182, 212, 0.5);
+}
+
+.upload-area {
+    border: 2px dashed rgba(56, 189, 248, 0.3);
+    background: rgba(15, 23, 42, 0.6);
+    border-radius: 16px;
+    padding: 22px 15px;
+    text-align: center;
+    cursor: pointer;
+    margin-bottom: 15px;
+}
+
+.live-card {
+    background: rgba(15, 23, 42, 0.7);
+    border: 1px solid rgba(56, 189, 248, 0.25);
+    border-radius: 18px;
+    padding: 14px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 14px;
+}
+
+.direction-card {
+    background: linear-gradient(135deg, rgba(239, 68, 68, 0.15) 0%, rgba(15, 23, 42, 0.8) 100%);
+    border: 1px solid rgba(239, 68, 68, 0.4);
+    border-radius: 18px;
+    padding: 16px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 14px;
+}
+.direction-card.up-bg {
+    background: linear-gradient(135deg, rgba(34, 197, 94, 0.15) 0%, rgba(15, 23, 42, 0.8) 100%);
+    border: 1px solid rgba(34, 197, 94, 0.4);
+}
+
+.dir-circle {
+    width: 48px;
+    height: 48px;
+    border-radius: 14px;
+    border: 1px dashed #ef4444;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 22px;
+}
+.up-bg .dir-circle { border-color: #22c55e; }
+
+.grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+.info-box {
+    background: rgba(15, 23, 42, 0.8);
+    border: 1px solid rgba(56, 189, 248, 0.2);
+    border-radius: 14px;
+    padding: 12px;
+}
+
+.btn-cyan {
     width: 100%;
     padding: 13px;
     border: none;
-    border-radius: 10px;
-    font-family: 'Orbitron', sans-serif;
-    font-size: 13px;
-    font-weight: 700;
+    border-radius: 12px;
+    background: #06b6d4;
     color: #020617;
-    background: linear-gradient(135deg, #38bdf8, #22d3ee);
-    cursor: pointer;
-    margin-top: 10px;
-}
-.btn-telegram {
-    display: block;
-    width: 100%;
-    padding: 12px;
-    margin-top: 12px;
-    text-decoration: none;
     font-family: 'Orbitron', sans-serif;
     font-size: 12px;
-    font-weight: bold;
-    color: #38bdf8;
-    background: rgba(15, 23, 42, 0.8);
-    border: 1px solid #38bdf8;
-    border-radius: 10px;
+    font-weight: 800;
+    cursor: pointer;
+    box-shadow: 0 0 20px rgba(6, 182, 212, 0.4);
+    margin-top: 8px;
 }
-.error-msg { color: #f43f5e; font-size: 13px; margin-bottom: 15px; font-weight: bold; }
-.switch-link { margin-top: 15px; font-size: 13px; color: #94a3b8; }
-.switch-link a { color: #38bdf8; text-decoration: none; }
+
+.bottom-nav {
+    margin-top: auto;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    background: rgba(15, 23, 42, 0.95);
+    border-radius: 16px;
+    padding: 10px 5px;
+    border: 1px solid rgba(56, 189, 248, 0.15);
+}
+.nav-btn {
+    text-align: center;
+    color: #64748b;
+    font-size: 10px;
+    font-weight: 600;
+    cursor: pointer;
+}
+.nav-btn.active { color: #38bdf8; }
+
+.modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); z-index: 100; justify-content: center; align-items: center; padding: 20px; }
+.modal-content { background: #0f172a; border: 1px solid #38bdf8; border-radius: 20px; padding: 20px; max-width: 380px; width: 100%; position: relative; }
 </style>"""
 
 @app.route('/')
@@ -139,8 +238,8 @@ def index():
 def login():
     error_html = ""
     if request.method == 'POST':
-        username = request.form.get('username')
-        password = request.form.get('password')
+        username = request.form.get('username', '').strip()
+        password = request.form.get('password', '').strip()
         
         conn = sqlite3.connect('database.db')
         cursor = conn.cursor()
@@ -151,26 +250,31 @@ def login():
         if user:
             session['user'] = user[1]
             session['role'] = user[4]
-            if user[4] == 'admin':
+            if user[4] == 'admin' or user[1] == 'admin':
+                session['role'] = 'admin'
                 return redirect('/admin')
             if user[5] == 1:
                 return redirect('/dashboard')
             else:
                 return redirect('/activate')
         else:
-            error_html = "<div class='error-msg'>Invalid username or password!</div>"
+            error_html = "<div style='color:#f43f5e; font-size:12px; margin-bottom:10px;'>Invalid credentials!</div>"
 
     html = f"""<!DOCTYPE html><html><head><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>STC ULTRA - Login</title>{COMMON_STYLE}</head><body>
-    <div class="glass-card">
-        <div class="brand-title">STC ULTRA ANALYZER</div>
-        <h4 style="color:#94a3b8; margin-bottom:15px;">USER ACCESS LOGIN</h4>
+    <div class="mobile-frame" style="justify-content:center;">
+        <div style="text-align:center; margin-bottom:30px;">
+            <div style="font-family:'Orbitron'; font-size:22px; font-weight:900; color:#38bdf8;">STC ULTRA</div>
+            <div style="font-size:12px; color:#94a3b8; margin-top:5px;">AI CHART ANALYZER LOGIN</div>
+        </div>
         {error_html}
         <form method="POST">
-            <div class="form-group"><label>USERNAME</label><input type="text" name="username" required autocomplete="off"></div>
-            <div class="form-group"><label>PASSWORD</label><input type="password" name="password" required></div>
-            <button type="submit" class="btn-neon">LOGIN TO SYSTEM</button>
+            <div style="margin-bottom:15px;"><label style="font-size:11px; color:#94a3b8; font-family:'Orbitron';">USERNAME</label>
+            <input type="text" name="username" required style="width:100%; padding:12px; background:#0f172a; border:1px solid rgba(56,189,248,0.3); color:#fff; border-radius:10px; margin-top:5px;"></div>
+            <div style="margin-bottom:20px;"><label style="font-size:11px; color:#94a3b8; font-family:'Orbitron';">PASSWORD</label>
+            <input type="password" name="password" required style="width:100%; padding:12px; background:#0f172a; border:1px solid rgba(56,189,248,0.3); color:#fff; border-radius:10px; margin-top:5px;"></div>
+            <button type="submit" class="btn-cyan">LOGIN SYSTEM</button>
         </form>
-        <div class="switch-link">Need an account? <a href="/register">Create One</a></div>
+        <div style="text-align:center; margin-top:20px; font-size:12px; color:#94a3b8;">No account? <a href="/register" style="color:#38bdf8; text-decoration:none;">Register</a></div>
     </div></body></html>"""
     return Response(html, mimetype='text/html')
 
@@ -178,9 +282,9 @@ def login():
 def register():
     error_html = ""
     if request.method == 'POST':
-        username = request.form.get('username')
-        email = request.form.get('email')
-        password = request.form.get('password')
+        username = request.form.get('username', '').strip()
+        email = request.form.get('email', '').strip()
+        password = request.form.get('password', '').strip()
         
         try:
             conn = sqlite3.connect('database.db')
@@ -194,20 +298,25 @@ def register():
             session['role'] = 'user'
             return redirect('/activate')
         except sqlite3.IntegrityError:
-            error_html = "<div class='error-msg'>Username already exists!</div>"
+            error_html = "<div style='color:#f43f5e; font-size:12px; margin-bottom:10px;'>Username taken!</div>"
 
     html = f"""<!DOCTYPE html><html><head><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>STC ULTRA - Register</title>{COMMON_STYLE}</head><body>
-    <div class="glass-card">
-        <div class="brand-title">STC ULTRA ANALYZER</div>
-        <h4 style="color:#94a3b8; margin-bottom:15px;">CREATE ACCOUNT (STEP 1)</h4>
+    <div class="mobile-frame" style="justify-content:center;">
+        <div style="text-align:center; margin-bottom:30px;">
+            <div style="font-family:'Orbitron'; font-size:22px; font-weight:900; color:#38bdf8;">STC ULTRA</div>
+            <div style="font-size:12px; color:#94a3b8; margin-top:5px;">CREATE NEW ACCOUNT</div>
+        </div>
         {error_html}
         <form method="POST">
-            <div class="form-group"><label>FULL NAME / USERNAME</label><input type="text" name="username" required autocomplete="off"></div>
-            <div class="form-group"><label>GMAIL ADDRESS</label><input type="email" name="email" required autocomplete="off"></div>
-            <div class="form-group"><label>PASSWORD</label><input type="password" name="password" required></div>
-            <button type="submit" class="btn-neon">REGISTER NOW</button>
+            <div style="margin-bottom:12px;"><label style="font-size:11px; color:#94a3b8; font-family:'Orbitron';">USERNAME</label>
+            <input type="text" name="username" required style="width:100%; padding:12px; background:#0f172a; border:1px solid rgba(56,189,248,0.3); color:#fff; border-radius:10px; margin-top:4px;"></div>
+            <div style="margin-bottom:12px;"><label style="font-size:11px; color:#94a3b8; font-family:'Orbitron';">GMAIL</label>
+            <input type="email" name="email" required style="width:100%; padding:12px; background:#0f172a; border:1px solid rgba(56,189,248,0.3); color:#fff; border-radius:10px; margin-top:4px;"></div>
+            <div style="margin-bottom:20px;"><label style="font-size:11px; color:#94a3b8; font-family:'Orbitron';">PASSWORD</label>
+            <input type="password" name="password" required style="width:100%; padding:12px; background:#0f172a; border:1px solid rgba(56,189,248,0.3); color:#fff; border-radius:10px; margin-top:4px;"></div>
+            <button type="submit" class="btn-cyan">CREATE ACCOUNT</button>
         </form>
-        <div class="switch-link">Already registered? <a href="/login">Login Here</a></div>
+        <div style="text-align:center; margin-top:20px; font-size:12px; color:#94a3b8;">Already registered? <a href="/login" style="color:#38bdf8; text-decoration:none;">Login</a></div>
     </div></body></html>"""
     return Response(html, mimetype='text/html')
 
@@ -229,21 +338,20 @@ def activate():
             conn.close()
             return redirect('/dashboard')
         else:
-            error_html = "<div class='error-msg'>Invalid License Key! Contact Admin.</div>"
+            error_html = "<div style='color:#f43f5e; font-size:12px; margin-bottom:10px;'>Invalid Key!</div>"
 
-    html = f"""<!DOCTYPE html><html><head><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>STC ULTRA - Activation</title>{COMMON_STYLE}</head><body>
-    <div class="glass-card">
-        <div class="brand-title">STC ULTRA ANALYZER</div>
-        <h4 style="color:#e2e8f0; margin-bottom:10px;">ACTIVATE ANALYZER (STEP 2)</h4>
-        <p style="color:#94a3b8; font-size:12px; margin-bottom:15px;">Enter license key to unlock dashboard.</p>
+    html = f"""<!DOCTYPE html><html><head><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>STC ULTRA - Activate</title>{COMMON_STYLE}</head><body>
+    <div class="mobile-frame" style="justify-content:center;">
+        <div style="text-align:center; margin-bottom:25px;">
+            <div style="font-family:'Orbitron'; font-size:20px; font-weight:900; color:#38bdf8;">LICENSE ACTIVATION</div>
+            <div style="font-size:11px; color:#94a3b8; margin-top:5px;">ENTER KEY TO UNLOCK DASHBOARD</div>
+        </div>
         {error_html}
         <form method="POST">
-            <div class="form-group"><label style="text-align:center;">LICENSE ACTIVATION KEY</label>
-            <input type="text" name="license_key" placeholder="STC-146625-@@-$$" style="text-align:center; font-family:'Orbitron'; font-weight:bold; color:#38bdf8;" required autocomplete="off"></div>
-            <button type="submit" class="btn-neon" style="background: linear-gradient(135deg, #22c55e, #10b981);">ACTIVATE ACCOUNT</button>
+            <input type="text" name="license_key" placeholder="STC-146625-@@-$$" required style="width:100%; padding:14px; background:#0f172a; border:1px solid #38bdf8; color:#38bdf8; font-family:'Orbitron'; text-align:center; font-weight:bold; border-radius:10px; margin-bottom:15px;">
+            <button type="submit" class="btn-cyan">VERIFY KEY</button>
         </form>
-        <a href="https://t.me/ownerstcsakib" target="_blank" class="btn-telegram">CONNECT OFFICIAL ADMIN</a>
-        <div class="switch-link"><a href="/logout" style="color:#f43f5e;">Logout Account</a></div>
+        <a href="https://t.me/ownerstcsakib" target="_blank" style="display:block; text-align:center; margin-top:15px; color:#38bdf8; text-decoration:none; font-family:'Orbitron'; font-size:11px;">CONTACT ADMIN FOR KEY</a>
     </div></body></html>"""
     return Response(html, mimetype='text/html')
 
@@ -252,187 +360,108 @@ def dashboard():
     if 'user' not in session:
         return redirect('/login')
         
-    html = f"""<!DOCTYPE html><html><head><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>STC ULTRA ANALYZER</title>{COMMON_STYLE}
-    <style>
-        .signal-card {{ margin-top: 20px; background: rgba(30, 41, 59, 0.8); border: 1px solid #38bdf8; border-radius: 16px; padding: 20px; display: none; text-align: center; }}
-        .direction-box {{ font-family: 'Orbitron'; font-size: 32px; font-weight: 900; margin: 10px 0; }}
-        .dir-up {{ color: #22c55e; }} .dir-down {{ color: #f43f5e; }}
-        .logic-btn {{ width: 100%; padding: 10px; background: rgba(56, 189, 248, 0.15); border: 1px solid #38bdf8; color: #38bdf8; border-radius: 8px; margin-top: 12px; cursor: pointer; font-weight: bold; }}
-        .logic-text {{ display: none; margin-top: 10px; padding: 10px; background: rgba(15, 23, 42, 0.95); border-left: 3px solid #38bdf8; font-size: 13px; text-align: left; }}
-    </style></head><body>
-    <div class="glass-card">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-            <div class="brand-title" style="margin:0; font-size:18px;">STC ULTRA</div>
-            <a href="/logout" style="color:#f43f5e; text-decoration:none; font-size:13px; font-weight:bold;">Logout</a>
+    html = f"""<!DOCTYPE html><html><head><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>STC ULTRA ANALYZER</title>{COMMON_STYLE}</head><body>
+
+    <div class="mobile-frame">
+        <div class="top-nav">
+            <div class="brand-name">Live Signal</div>
+            <div class="user-icon"><a href="/logout" style="color:#38bdf8; text-decoration:none; font-size:14px;">👤</a></div>
         </div>
-        <div class="form-group"><label>SELECT OTC ASSET PAIR</label>
-            <select id="marketPair">
-                <option value="USD/PHP OTC">USD/PHP OTC</option>
-                <option value="USD/BDT OTC">USD/BDT OTC</option>
-                <option value="EUR/USD OTC">EUR/USD OTC</option>
-                <option value="GBP/USD OTC">GBP/USD OTC</option>
-            </select>
+
+        <div class="market-tabs">
+            <div class="tab-item active">OTC Market</div>
+            <div class="tab-item">Real Market</div>
         </div>
-        <div class="form-group"><label>UPLOAD CHART SCREENSHOT</label><input type="file" id="screenshotInput" accept="image/*"></div>
-        <button class="btn-neon" onclick="analyzeScreenshot()">ANALYZE SIGNAL NOW</button>
-        <div id="loadingBox" style="display:none; margin-top:15px; color:#38bdf8; font-family:'Orbitron'; font-size:13px;">⚡ AI SCANNING CHART...</div>
-        <div class="signal-card" id="signalCard">
-            <div style="font-size: 11px; color: #94a3b8; font-family:'Orbitron';">PREDICTION RESULT</div>
-            <div class="direction-box" id="directionText">DOWN</div>
-            <div style="font-size: 13px; font-weight:bold;" id="signalType">PUT / SELL</div>
-            <button class="logic-btn" onclick="toggleLogic()">VIEW LOGIC & REASONING</button>
-            <div class="logic-text" id="logicBox"></div>
+
+        <div class="upload-area" onclick="document.getElementById('screenshotInput').click()">
+            <div style="font-size:24px; color:#38bdf8; margin-bottom:4px;">📷</div>
+            <div style="font-family:'Orbitron'; font-size:11px; font-weight:700; color:#e2e8f0;">UPLOAD CHART SCREENSHOT</div>
+            <div style="font-size:10px; color:#64748b; margin-top:2px;">AI Auto-Detects Pair & Signals</div>
+            <input type="file" id="screenshotInput" accept="image/*" style="display:none;" onchange="autoAnalyze(this)">
+        </div>
+
+        <div id="loadingBox" style="display:none; text-align:center; padding:15px; color:#38bdf8; font-family:'Orbitron'; font-size:11px;">⚡ SCANNING CHART PATTERNS...</div>
+
+        <!-- SIGNAL CARD CONTAINER -->
+        <div id="analysisResult" style="display:none;">
+            <div class="live-card">
+                <div>
+                    <div style="font-size:9px; color:#94a3b8; font-family:'Orbitron';">LIVE ASSET PAIR</div>
+                    <div style="font-family:'Orbitron'; font-size:18px; font-weight:900; color:#fff;" id="detectedPair">USD/PHP <span style="font-size:10px; background:#0f172a; padding:2px 6px; border-radius:4px; color:#38bdf8;">OTC</span></div>
+                </div>
+                <div style="font-size:20px;">🇺🇸🇵🇭</div>
+            </div>
+
+            <div class="direction-card" id="dirCard">
+                <div class="dir-circle" id="dirArrow">↓</div>
+                <div>
+                    <div style="font-size:9px; color:#94a3b8; font-family:'Orbitron';">NEXT CANDLE DIRECTION</div>
+                    <div style="font-family:'Orbitron'; font-size:24px; font-weight:900;" id="dirText">DOWN</div>
+                    <div style="font-size:10px; font-weight:700; color:#e2e8f0;" id="dirSub">PUT / SELL</div>
+                </div>
+            </div>
+
+            <div style="background:rgba(15,23,42,0.8); border:1px solid rgba(56,189,248,0.2); border-radius:14px; padding:12px; margin-bottom:10px;">
+                <div style="display:flex; justify-content:space-between; font-size:10px; font-family:'Orbitron'; margin-bottom:6px;">
+                    <span style="color:#94a3b8;">SIGNAL STRENGTH</span>
+                    <span style="color:#fbbf24;" id="strengthLabel">Medium</span>
+                </div>
+                <div style="height:6px; background:#1e293b; border-radius:3px; overflow:hidden;">
+                    <div id="strengthBar" style="width:70%; height:100%; background:linear-gradient(90deg, #38bdf8, #fbbf24);"></div>
+                </div>
+            </div>
+
+            <div class="grid-2">
+                <div class="info-box">
+                    <div style="font-size:9px; color:#94a3b8; font-family:'Orbitron';">MARKET TREND</div>
+                    <div style="font-size:13px; font-weight:800; color:#f43f5e; margin-top:4px;" id="trendVal">Bearish</div>
+                </div>
+                <div class="info-box">
+                    <div style="font-size:9px; color:#94a3b8; font-family:'Orbitron';">TRAP LEVEL</div>
+                    <div style="font-size:13px; font-weight:800; color:#fbbf24; margin-top:4px;" id="trapVal">Medium</div>
+                </div>
+            </div>
+
+            <div class="grid-2">
+                <div class="info-box">
+                    <div style="font-size:9px; color:#94a3b8; font-family:'Orbitron';">SUPPORT</div>
+                    <div style="font-size:13px; font-weight:800; color:#e2e8f0; margin-top:4px;" id="supVal">62.702</div>
+                </div>
+                <div class="info-box">
+                    <div style="font-size:9px; color:#94a3b8; font-family:'Orbitron';">RESISTANCE</div>
+                    <div style="font-size:13px; font-weight:800; color:#e2e8f0; margin-top:4px;" id="resVal">62.746</div>
+                </div>
+            </div>
+
+            <button class="btn-cyan" onclick="openLogicModal()">👁 View Logic & Manipulation</button>
+            <button class="btn-cyan" style="background:transparent; border:1px solid #06b6d4; color:#06b6d4;" onclick="document.getElementById('screenshotInput').click()">🔄 Analyze Another Signal</button>
+        </div>
+
+        <div class="bottom-nav">
+            <div class="nav-btn">📊<br>Dashboard</div>
+            <div class="nav-btn active">📡<br>Live Signal</div>
+            <div class="nav-btn">📈<br>Analyzer</div>
+            <div class="nav-btn">⏰<br>Future</div>
+            <div class="nav-btn">💳<br>Money</div>
         </div>
     </div>
-    <script>
-        async function analyzeScreenshot() {{
-            const fileInput = document.getElementById('screenshotInput');
-            const marketPair = document.getElementById('marketPair').value;
-            const signalCard = document.getElementById('signalCard');
-            const loadingBox = document.getElementById('loadingBox');
-            const logicBox = document.getElementById('logicBox');
 
-            if (fileInput.files.length === 0) {{ alert('Please upload a screenshot first!'); return; }}
-
-            signalCard.style.display = 'none';
-            logicBox.style.display = 'none';
-            loadingBox.style.display = 'block';
-
-            const reader = new FileReader();
-            reader.onload = async function() {{
-                const base64Image = reader.result.split(',')[1];
-                try {{
-                    const response = await fetch('/analyze', {{
-                        method: 'POST',
-                        headers: {{ 'Content-Type': 'application/json' }},
-                        body: JSON.stringify({{ image: base64Image, market: marketPair }})
-                    }});
-                    const data = await response.json();
-                    loadingBox.style.display = 'none';
-
-                    if (data.status === 'success') {{
-                        const dir = data.direction.toUpperCase();
-                        const dirText = document.getElementById('directionText');
-                        dirText.innerText = dir;
-                        if(dir.includes('CALL') || dir.includes('UP') || dir.includes('BUY')) {{
-                            dirText.className = 'direction-box dir-up';
-                            document.getElementById('signalType').innerText = 'CALL / BUY';
-                        }} else {{
-                            dirText.className = 'direction-box dir-down';
-                            document.getElementById('signalType').innerText = 'PUT / SELL';
-                        }}
-                        logicBox.innerText = data.reasoning;
-                        signalCard.style.display = 'block';
-                    }} else {{ alert(data.message); }}
-                }} catch (err) {{ loadingBox.style.display = 'none'; alert('Connection Failed!'); }}
-            }};
-            reader.readAsDataURL(fileInput.files[0]);
-        }}
-        function toggleLogic() {{
-            const logicBox = document.getElementById('logicBox');
-            logicBox.style.display = logicBox.style.display === 'none' ? 'block' : 'none';
-        }}
-    </script></body></html>"""
-    return Response(html, mimetype='text/html')
-
-@app.route('/admin')
-def admin_panel():
-    if 'user' not in session or session.get('role') != 'admin':
-        return redirect('/login')
-        
-    conn = sqlite3.connect('database.db')
-    cursor = conn.cursor()
-    cursor.execute("SELECT id, username, email, is_activated FROM users")
-    users = cursor.fetchall()
-    conn.close()
-    
-    user_rows = ""
-    for u in users:
-        status = "<span style='color:#22c55e;'>Active</span>" if u[3] == 1 else "<span style='color:#eab308;'>Pending</span>"
-        action = f"<form action='/admin/delete/{u[0]}' method='POST' style='margin:0;'><button type='submit' style='background:#f43f5e; color:#fff; border:none; padding:4px 8px; border-radius:4px;'>Delete</button></form>" if u[1] != 'admin' else "Admin"
-        user_rows += f"<tr><td>{u[0]}</td><td>{u[1]}</td><td>{u[2]}</td><td>{status}</td><td>{action}</td></tr>"
-
-    html = f"""<!DOCTYPE html><html><head><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Admin - STC ULTRA</title>{COMMON_STYLE}
-    <style>table {{ width:100%; border-collapse:collapse; margin-top:15px; font-size:12px; }} th, td {{ padding:8px; border:1px solid rgba(255,255,255,0.1); text-align:center; }}</style></head><body>
-    <div class="glass-card" style="max-width:600px;">
-        <div style="display:flex; justify-content:space-between; align-items:center;">
-            <div class="brand-title" style="margin:0; font-size:18px;">ADMIN PANEL</div>
-            <a href="/logout" style="color:#f43f5e; text-decoration:none; font-weight:bold;">Logout</a>
+    <!-- MODAL POPUP -->
+    <div class="modal" id="logicModal">
+        <div class="modal-content">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                <div style="font-family:'Orbitron'; font-size:13px; font-weight:800; color:#38bdf8;">TRAP & MAIN LOGIC</div>
+                <span style="color:#f43f5e; cursor:pointer; font-weight:bold;" onclick="closeLogicModal()">&times;</span>
+            </div>
+            <div id="logicTextContent" style="font-size:12px; color:#cbd5e1; line-height:1.6; white-space:pre-wrap;"></div>
         </div>
-        <table><tr><th>ID</th><th>User</th><th>Email</th><th>Status</th><th>Action</th></tr>{user_rows}</table>
-    </div></body></html>"""
-    return Response(html, mimetype='text/html')
+    </div>
 
-@app.route('/admin/delete/<int:user_id>', methods=['POST'])
-def delete_user(user_id):
-    if 'user' not in session or session.get('role') != 'admin':
-        return redirect('/login')
-        
-    conn = sqlite3.connect('database.db')
-    cursor = conn.cursor()
-    cursor.execute("DELETE FROM users WHERE id = ? AND role != 'admin'", (user_id,))
-    conn.commit()
-    conn.close()
-    return redirect('/admin')
+    <script>
+        async function autoAnalyze(input) {{
+            if(input.files.length === 0) return;
+            const loadingBox = document.getElementById('loadingBox');
+            const resultBox = document.getElementById('analysisResult');
 
-@app.route('/logout')
-def logout():
-    session.clear()
-    return redirect('/login')
-
-@app.route('/analyze', methods=['POST'])
-def analyze():
-    if 'user' not in session:
-        return jsonify({"status": "error", "message": "Unauthorized access."})
-    try:
-        data = request.json or {}
-        base64_image = data.get('image')
-        market = data.get('market')
-
-        if not base64_image:
-            return jsonify({"status": "error", "message": "Screenshot is required."})
-
-        if not client:
-            return jsonify({
-                "status": "success",
-                "direction": "PUT",
-                "reasoning": "Fallback Analysis: Strong Bearish Reversal Pattern detected."
-            })
-
-        prompt_instruction = f"""
-        You are a strict Trading AI Validator for market pair {market}.
-        Verify if image is a genuine trading candlestick chart screenshot.
-        
-        - IF NOT A CHART: Return JSON: {{"is_valid_chart": false, "error_message": "Invalid Image! Please upload a valid Trading Chart screenshot."}}
-        - IF VALID CHART: Return JSON: {{"is_valid_chart": true, "direction": "CALL" or "PUT", "reasoning": "Pattern explanation."}}
-        """
-
-        chat_completion = client.chat.completions.create(
-            messages=[{
-                "role": "user",
-                "content": [
-                    {"type": "text", "text": prompt_instruction},
-                    {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{base64_image}"}}
-                ]
-            }],
-            model="meta-llama/llama-3.2-11b-vision-preview",
-            response_format={"type": "json_object"}
-        )
-
-        res_json = json.loads(chat_completion.choices[0].message.content)
-
-        if not res_json.get("is_valid_chart", True):
-            return jsonify({"status": "error", "message": res_json.get("error_message", "Invalid image!")})
-
-        return jsonify({
-            "status": "success",
-            "direction": res_json.get("direction", "PUT"),
-            "reasoning": res_json.get("reasoning", "Candlestick analysis complete.")
-        })
-
-    except Exception:
-        return jsonify({"status": "error", "message": "Analysis failed. Upload a clear chart screenshot."})
-
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=PORT)
-        
+            resultBox.style.display = 'none';
+            
