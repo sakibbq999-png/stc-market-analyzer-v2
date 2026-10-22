@@ -1,0 +1,1 @@
+# stc-market-analyzer-v2
