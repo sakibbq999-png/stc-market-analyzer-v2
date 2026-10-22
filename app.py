@@ -17,8 +17,6 @@ client = Groq(api_key=GROQ_API_KEY) if GROQ_API_KEY else None
 def init_db():
     conn = sqlite3.connect('database.db')
     cursor = conn.cursor()
-    
-    # Check if table exists and has proper columns, if not recreate safely
     cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='users'")
     table_exists = cursor.fetchone()
     
@@ -31,7 +29,6 @@ def init_db():
                             role TEXT DEFAULT 'user',
                             is_activated INTEGER DEFAULT 0)''')
     else:
-        # Check columns
         cursor.execute("PRAGMA table_info(users)")
         columns = [col[1] for col in cursor.fetchall()]
         if 'is_activated' not in columns:
@@ -243,15 +240,15 @@ def login():
             if user[5] == 1:
                 return redirect('/dashboard')
             return redirect('/activate')
-        error_msg = "<div style='color:#f43f5e; font-size:12px; margin-bottom:10px;'>Invalid credentials!</div>"
+        error_msg = '<div style="color:#f43f5e; font-size:12px; margin-bottom:10px;">Invalid credentials!</div>'
 
-    html = f"""<!DOCTYPE html><html><head><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>STC ULTRA - Login</title><style>{BASE_STYLE}</style></head><body>
+    login_html = """<!DOCTYPE html><html><head><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>STC ULTRA - Login</title><style>""" + BASE_STYLE + """</style></head><body>
     <div class="mobile-frame" style="justify-content:center;">
         <div style="text-align:center; margin-bottom:30px;">
             <div style="font-family:'Orbitron'; font-size:22px; font-weight:900; color:#38bdf8;">STC ULTRA</div>
             <div style="font-size:12px; color:#94a3b8; margin-top:5px;">AI CHART ANALYZER LOGIN</div>
         </div>
-        {error_msg}
+        """ + error_msg + """
         <form method="POST">
             <div style="margin-bottom:15px;"><label style="font-size:11px; color:#94a3b8; font-family:'Orbitron';">USERNAME</label>
             <input type="text" name="username" required style="width:100%; padding:12px; background:#0f172a; border:1px solid rgba(56,189,248,0.3); color:#fff; border-radius:10px; margin-top:5px;"></div>
@@ -261,7 +258,7 @@ def login():
         </form>
         <div style="text-align:center; margin-top:20px; font-size:12px; color:#94a3b8;">No account? <a href="/register" style="color:#38bdf8; text-decoration:none;">Register</a></div>
     </div></body></html>"""
-    return Response(html, mimetype='text/html')
+    return Response(login_html, mimetype='text/html')
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -281,21 +278,21 @@ def register():
             session['role'] = 'user'
             return redirect('/activate')
         except sqlite3.IntegrityError:
-            error_msg = "<div style='color:#f43f5e; font-size:12px; margin-bottom:10px;'>Username taken!</div>"
+            error_msg = '<div style="color:#f43f5e; font-size:12px; margin-bottom:10px;">Username taken!</div>'
         except Exception as e:
-            error_msg = f"<div style='color:#f43f5e; font-size:12px; margin-bottom:10px;'>Error: {str(e)}</div>"
+            error_msg = f'<div style="color:#f43f5e; font-size:12px; margin-bottom:10px;">Error: {str(e)}</div>'
 
-    html = f"""<!DOCTYPE html><html><head><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>STC ULTRA - Register</title><style>{BASE_STYLE}</style></head><body>
+    register_html = """<!DOCTYPE html><html><head><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>STC ULTRA - Register</title><style>""" + BASE_STYLE + """</style></head><body>
     <div class="mobile-frame" style="justify-content:center;">
         <div style="text-align:center; margin-bottom:30px;">
             <div style="font-family:'Orbitron'; font-size:22px; font-weight:900; color:#38bdf8;">STC ULTRA</div>
             <div style="font-size:12px; color:#94a3b8; margin-top:5px;">CREATE NEW ACCOUNT</div>
         </div>
-        {error_msg}
+        """ + error_msg + """
         <form method="POST">
             <div style="margin-bottom:12px;"><label style="font-size:11px; color:#94a3b8; font-family:'Orbitron';">USERNAME</label>
             <input type="text" name="username" required style="width:100%; padding:12px; background:#0f172a; border:1px solid rgba(56,189,248,0.3); color:#fff; border-radius:10px; margin-top:4px;"></div>
             <div style="margin-bottom:12px;"><label style="font-size:11px; color:#94a3b8; font-family:'Orbitron';">GMAIL</label>
             <input type="email" name="email" required style="width:100%; padding:12px; background:#0f172a; border:1px solid rgba(56,189,248,0.3); color:#fff; border-radius:10px; margin-top:4px;"></div>
             <div style="margin-bottom:20px;"><label style="font-size:11px; color:#94a3b8; font-family:'Orbitron';">PASSWORD</label>
-            <input type="password" name="password" required style="width
+            <input type="password" name="password" required style="width:100%; padding:12px; background:#0f172a; bord
