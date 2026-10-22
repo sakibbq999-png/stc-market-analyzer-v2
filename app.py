@@ -2,7 +2,7 @@ import os
 import json
 import sqlite3
 import base64
-from flask import Flask, request, jsonify, session, redirect, Response, render_template_string
+from flask import Flask, request, jsonify, session, redirect, Response
 from groq import Groq
 
 app = Flask(__name__)
@@ -37,168 +37,33 @@ def init_db():
 
 init_db()
 
-COMMON_STYLE = """
+BASE_HTML_HEAD = """<!DOCTYPE html><html><head><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>STC ULTRA ANALYZER</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
 * { box-sizing: border-box; margin: 0; padding: 0; }
-body {
-    font-family: 'Plus Jakarta Sans', sans-serif;
-    background: #020617;
-    color: #f8fafc;
-    min-height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 10px;
-}
-.mobile-frame {
-    width: 100%;
-    max-width: 420px;
-    background: #060b19;
-    border-radius: 28px;
-    padding: 20px 16px;
-    border: 1px solid rgba(56, 189, 248, 0.2);
-    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8);
-    position: relative;
-    min-height: 840px;
-    display: flex;
-    flex-direction: column;
-}
-.top-nav {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-}
-.brand-name {
-    font-family: 'Orbitron', sans-serif;
-    font-size: 18px;
-    font-weight: 800;
-    color: #f8fafc;
-}
-.user-icon {
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    background: radial-gradient(circle, #38bdf8 0%, #030712 100%);
-    border: 1px solid #38bdf8;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-.market-tabs {
-    display: flex;
-    background: rgba(15, 23, 42, 0.9);
-    border-radius: 12px;
-    padding: 4px;
-    border: 1px solid rgba(56, 189, 248, 0.2);
-    margin-bottom: 18px;
-}
-.tab-item {
-    flex: 1;
-    padding: 10px;
-    text-align: center;
-    font-family: 'Orbitron', sans-serif;
-    font-size: 11px;
-    font-weight: 700;
-    border-radius: 8px;
-    color: #94a3b8;
-}
-.tab-item.active {
-    background: #06b6d4;
-    color: #020617;
-    box-shadow: 0 0 15px rgba(6, 182, 212, 0.5);
-}
-.upload-area {
-    border: 2px dashed rgba(56, 189, 248, 0.3);
-    background: rgba(15, 23, 42, 0.6);
-    border-radius: 16px;
-    padding: 22px 15px;
-    text-align: center;
-    cursor: pointer;
-    margin-bottom: 15px;
-}
-.live-card {
-    background: rgba(15, 23, 42, 0.7);
-    border: 1px solid rgba(56, 189, 248, 0.25);
-    border-radius: 18px;
-    padding: 14px 16px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 14px;
-}
-.direction-card {
-    background: linear-gradient(135deg, rgba(239, 68, 68, 0.15) 0%, rgba(15, 23, 42, 0.8) 100%);
-    border: 1px solid rgba(239, 68, 68, 0.4);
-    border-radius: 18px;
-    padding: 16px;
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    margin-bottom: 14px;
-}
-.direction-card.up-bg {
-    background: linear-gradient(135deg, rgba(34, 197, 94, 0.15) 0%, rgba(15, 23, 42, 0.8) 100%);
-    border: 1px solid rgba(34, 197, 94, 0.4);
-}
-.dir-circle {
-    width: 48px;
-    height: 48px;
-    border-radius: 14px;
-    border: 1px dashed #ef4444;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 22px;
-}
+body { font-family: 'Plus Jakarta Sans', sans-serif; background: #020617; color: #f8fafc; min-height: 100vh; display: flex; justify-content: center; align-items: center; padding: 10px; }
+.mobile-frame { width: 100%; max-width: 420px; background: #060b19; border-radius: 28px; padding: 20px 16px; border: 1px solid rgba(56, 189, 248, 0.2); box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8); position: relative; min-height: 840px; display: flex; flex-direction: column; }
+.top-nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+.brand-name { font-family: 'Orbitron', sans-serif; font-size: 18px; font-weight: 800; color: #f8fafc; }
+.user-icon { width: 36px; height: 36px; border-radius: 50%; background: radial-gradient(circle, #38bdf8 0%, #030712 100%); border: 1px solid #38bdf8; display: flex; justify-content: center; align-items: center; }
+.market-tabs { display: flex; background: rgba(15, 23, 42, 0.9); border-radius: 12px; padding: 4px; border: 1px solid rgba(56, 189, 248, 0.2); margin-bottom: 18px; }
+.tab-item { flex: 1; padding: 10px; text-align: center; font-family: 'Orbitron', sans-serif; font-size: 11px; font-weight: 700; border-radius: 8px; color: #94a3b8; }
+.tab-item.active { background: #06b6d4; color: #020617; box-shadow: 0 0 15px rgba(6, 182, 212, 0.5); }
+.upload-area { border: 2px dashed rgba(56, 189, 248, 0.3); background: rgba(15, 23, 42, 0.6); border-radius: 16px; padding: 22px 15px; text-align: center; cursor: pointer; margin-bottom: 15px; }
+.live-card { background: rgba(15, 23, 42, 0.7); border: 1px solid rgba(56, 189, 248, 0.25); border-radius: 18px; padding: 14px 16px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+.direction-card { background: linear-gradient(135deg, rgba(239, 68, 68, 0.15) 0%, rgba(15, 23, 42, 0.8) 100%); border: 1px solid rgba(239, 68, 68, 0.4); border-radius: 18px; padding: 16px; display: flex; align-items: center; gap: 15px; margin-bottom: 14px; }
+.direction-card.up-bg { background: linear-gradient(135deg, rgba(34, 197, 94, 0.15) 0%, rgba(15, 23, 42, 0.8) 100%); border: 1px solid rgba(34, 197, 94, 0.4); }
+.dir-circle { width: 48px; height: 48px; border-radius: 14px; border: 1px dashed #ef4444; display: flex; justify-content: center; align-items: center; font-size: 22px; }
 .up-bg .dir-circle { border-color: #22c55e; }
-.grid-2 {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-    margin-bottom: 10px;
-}
-.info-box {
-    background: rgba(15, 23, 42, 0.8);
-    border: 1px solid rgba(56, 189, 248, 0.2);
-    border-radius: 14px;
-    padding: 12px;
-}
-.btn-cyan {
-    width: 100%;
-    padding: 13px;
-    border: none;
-    border-radius: 12px;
-    background: #06b6d4;
-    color: #020617;
-    font-family: 'Orbitron', sans-serif;
-    font-size: 12px;
-    font-weight: 800;
-    cursor: pointer;
-    box-shadow: 0 0 20px rgba(6, 182, 212, 0.4);
-    margin-top: 8px;
-}
-.bottom-nav {
-    margin-top: auto;
-    display: flex;
-    justify-content: space-around;
-    align-items: center;
-    background: rgba(15, 23, 42, 0.95);
-    border-radius: 16px;
-    padding: 10px 5px;
-    border: 1px solid rgba(56, 189, 248, 0.15);
-}
-.nav-btn {
-    text-align: center;
-    color: #64748b;
-    font-size: 10px;
-    font-weight: 600;
-}
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+.info-box { background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(56, 189, 248, 0.2); border-radius: 14px; padding: 12px; }
+.btn-cyan { width: 100%; padding: 13px; border: none; border-radius: 12px; background: #06b6d4; color: #020617; font-family: 'Orbitron', sans-serif; font-size: 12px; font-weight: 800; cursor: pointer; box-shadow: 0 0 20px rgba(6, 182, 212, 0.4); margin-top: 8px; }
+.bottom-nav { margin-top: auto; display: flex; justify-content: space-around; align-items: center; background: rgba(15, 23, 42, 0.95); border-radius: 16px; padding: 10px 5px; border: 1px solid rgba(56, 189, 248, 0.15); }
+.nav-btn { text-align: center; color: #64748b; font-size: 10px; font-weight: 600; }
 .nav-btn.active { color: #38bdf8; }
 .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); z-index: 100; justify-content: center; align-items: center; padding: 20px; }
 .modal-content { background: #0f172a; border: 1px solid #38bdf8; border-radius: 20px; padding: 20px; max-width: 380px; width: 100%; position: relative; }
-</style>
+</style></head><body>
 """
 
 @app.route('/')
@@ -246,7 +111,7 @@ def login():
         else:
             error_msg = "<div style='color:#f43f5e; font-size:12px; margin-bottom:10px;'>Invalid credentials!</div>"
 
-    html = COMMON_STYLE + """
+    html = BASE_HTML_HEAD + """
     <div class="mobile-frame" style="justify-content:center;">
         <div style="text-align:center; margin-bottom:30px;">
             <div style="font-family:'Orbitron'; font-size:22px; font-weight:900; color:#38bdf8;">STC ULTRA</div>
@@ -261,7 +126,7 @@ def login():
             <button type="submit" class="btn-cyan">LOGIN SYSTEM</button>
         </form>
         <div style="text-align:center; margin-top:20px; font-size:12px; color:#94a3b8;">No account? <a href="/register" style="color:#38bdf8; text-decoration:none;">Register</a></div>
-    </div>
+    </div></body></html>
     """
     return Response(html, mimetype='text/html')
 
@@ -287,7 +152,7 @@ def register():
         except sqlite3.IntegrityError:
             error_msg = "<div style='color:#f43f5e; font-size:12px; margin-bottom:10px;'>Username taken!</div>"
 
-    html = COMMON_STYLE + """
+    html = BASE_HTML_HEAD + """
     <div class="mobile-frame" style="justify-content:center;">
         <div style="text-align:center; margin-bottom:30px;">
             <div style="font-family:'Orbitron'; font-size:22px; font-weight:900; color:#38bdf8;">STC ULTRA</div>
@@ -304,7 +169,7 @@ def register():
             <button type="submit" class="btn-cyan">CREATE ACCOUNT</button>
         </form>
         <div style="text-align:center; margin-top:20px; font-size:12px; color:#94a3b8;">Already registered? <a href="/login" style="color:#38bdf8; text-decoration:none;">Login</a></div>
-    </div>
+    </div></body></html>
     """
     return Response(html, mimetype='text/html')
 
@@ -328,7 +193,7 @@ def activate():
         else:
             error_msg = "<div style='color:#f43f5e; font-size:12px; margin-bottom:10px;'>Invalid Key!</div>"
 
-    html = COMMON_STYLE + """
+    html = BASE_HTML_HEAD + """
     <div class="mobile-frame" style="justify-content:center;">
         <div style="text-align:center; margin-bottom:25px;">
             <div style="font-family:'Orbitron'; font-size:20px; font-weight:900; color:#38bdf8;">LICENSE ACTIVATION</div>
@@ -340,7 +205,7 @@ def activate():
             <button type="submit" class="btn-cyan">VERIFY KEY</button>
         </form>
         <a href="https://t.me/ownerstcsakib" target="_blank" style="display:block; text-align:center; margin-top:15px; color:#38bdf8; text-decoration:none; font-family:'Orbitron'; font-size:11px;">CONTACT ADMIN FOR KEY</a>
-    </div>
+    </div></body></html>
     """
     return Response(html, mimetype='text/html')
 
@@ -349,7 +214,7 @@ def dashboard():
     if 'user' not in session:
         return redirect('/login')
         
-    html = COMMON_STYLE + """
+    html = BASE_HTML_HEAD + """
     <div class="mobile-frame">
         <div class="top-nav">
             <div class="brand-name">Live Signal</div>
@@ -451,4 +316,8 @@ def dashboard():
                     loadingBox.style.display = 'none';
                     if (data.status === 'success') {
                         document.getElementById('detectedPair').innerText = data.pair + " OTC";
-                        const dir = data.di
+                        const dir = data.direction.toUpperCase();
+                        const dirText = document.getElementById('dirText');
+                        const dirCard = document.getElementById('dirCard');
+                        const dirArrow = document.getElementById('dirArrow');
+                        dirText.innerText = 
