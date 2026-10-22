@@ -523,11 +523,11 @@ ADMIN_HTML = """<!DOCTYPE html>
 @app.route('/')
 def index():
     if 'user' in session:
-        if session['role'] == 'admin':
+        if session.get('role') == 'admin':
             return redirect(url_for('admin_panel'))
         
         conn = sqlite3.connect('database.db')
         cursor = conn.cursor()
         cursor.execute("SELECT is_activated FROM users WHERE username = ?", (session['user'],))
         row = cursor.fetchone()
-        co
+      
