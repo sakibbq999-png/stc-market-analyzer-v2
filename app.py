@@ -37,6 +37,34 @@ def init_db():
 
 init_db()
 
+COMMON_HEAD = """<!DOCTYPE html><html><head><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>STC ULTRA ANALYZER</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Plus Jakarta Sans', sans-serif; background: #020617; color: #f8fafc; min-height: 100vh; display: flex; justify-content: center; align-items: center; padding: 10px; }
+.mobile-frame { width: 100%; max-width: 420px; background: #060b19; border-radius: 28px; padding: 20px 16px; border: 1px solid rgba(56, 189, 248, 0.2); box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8); position: relative; min-height: 840px; display: flex; flex-direction: column; }
+.top-nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+.brand-name { font-family: 'Orbitron', sans-serif; font-size: 18px; font-weight: 800; color: #f8fafc; }
+.user-icon { width: 36px; height: 36px; border-radius: 50%; background: radial-gradient(circle, #38bdf8 0%, #030712 100%); border: 1px solid #38bdf8; display: flex; justify-content: center; align-items: center; }
+.market-tabs { display: flex; background: rgba(15, 23, 42, 0.9); border-radius: 12px; padding: 4px; border: 1px solid rgba(56, 189, 248, 0.2); margin-bottom: 18px; }
+.tab-item { flex: 1; padding: 10px; text-align: center; font-family: 'Orbitron', sans-serif; font-size: 11px; font-weight: 700; border-radius: 8px; color: #94a3b8; }
+.tab-item.active { background: #06b6d4; color: #020617; box-shadow: 0 0 15px rgba(6, 182, 212, 0.5); }
+.upload-area { border: 2px dashed rgba(56, 189, 248, 0.3); background: rgba(15, 23, 42, 0.6); border-radius: 16px; padding: 22px 15px; text-align: center; cursor: pointer; margin-bottom: 15px; }
+.live-card { background: rgba(15, 23, 42, 0.7); border: 1px solid rgba(56, 189, 248, 0.25); border-radius: 18px; padding: 14px 16px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+.direction-card { background: linear-gradient(135deg, rgba(239, 68, 68, 0.15) 0%, rgba(15, 23, 42, 0.8) 100%); border: 1px solid rgba(239, 68, 68, 0.4); border-radius: 18px; padding: 16px; display: flex; align-items: center; gap: 15px; margin-bottom: 14px; }
+.direction-card.up-bg { background: linear-gradient(135deg, rgba(34, 197, 94, 0.15) 0%, rgba(15, 23, 42, 0.8) 100%); border: 1px solid rgba(34, 197, 94, 0.4); }
+.dir-circle { width: 48px; height: 48px; border-radius: 14px; border: 1px dashed #ef4444; display: flex; justify-content: center; align-items: center; font-size: 22px; }
+.up-bg .dir-circle { border-color: #22c55e; }
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+.info-box { background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(56, 189, 248, 0.2); border-radius: 14px; padding: 12px; }
+.btn-cyan { width: 100%; padding: 13px; border: none; border-radius: 12px; background: #06b6d4; color: #020617; font-family: 'Orbitron', sans-serif; font-size: 12px; font-weight: 800; cursor: pointer; box-shadow: 0 0 20px rgba(6, 182, 212, 0.4); margin-top: 8px; }
+.bottom-nav { margin-top: auto; display: flex; justify-content: space-around; align-items: center; background: rgba(15, 23, 42, 0.95); border-radius: 16px; padding: 10px 5px; border: 1px solid rgba(56, 189, 248, 0.15); }
+.nav-btn { text-align: center; color: #64748b; font-size: 10px; font-weight: 600; }
+.nav-btn.active { color: #38bdf8; }
+.modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); z-index: 100; justify-content: center; align-items: center; padding: 20px; }
+.modal-content { background: #0f172a; border: 1px solid #38bdf8; border-radius: 20px; padding: 20px; max-width: 380px; width: 100%; position: relative; }
+</style></head><body>"""
+
 @app.route('/')
 def index():
     if 'user' in session:
@@ -82,15 +110,8 @@ def login():
         else:
             error_msg = "<div style='color:#f43f5e; font-size:12px; margin-bottom:10px;'>Invalid credentials!</div>"
 
-    html = """<!DOCTYPE html><html><head><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>STC ULTRA - Login</title>
-    <style>
-    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'Plus Jakarta Sans', sans-serif; background: #020617; color: #f8fafc; min-height: 100vh; display: flex; justify-content: center; align-items: center; padding: 10px; }
-    .mobile-frame { width: 100%; max-width: 420px; background: #060b19; border-radius: 28px; padding: 20px 16px; border: 1px solid rgba(56, 189, 248, 0.2); box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8); position: relative; min-height: 840px; display: flex; flex-direction: column; justify-content: center; }
-    .btn-cyan { width: 100%; padding: 13px; border: none; border-radius: 12px; background: #06b6d4; color: #020617; font-family: 'Orbitron', sans-serif; font-size: 12px; font-weight: 800; cursor: pointer; box-shadow: 0 0 20px rgba(6, 182, 212, 0.4); margin-top: 8px; }
-    </style></head><body>
-    <div class="mobile-frame">
+    html = COMMON_HEAD + """
+    <div class="mobile-frame" style="justify-content:center;">
         <div style="text-align:center; margin-bottom:30px;">
             <div style="font-family:'Orbitron'; font-size:22px; font-weight:900; color:#38bdf8;">STC ULTRA</div>
             <div style="font-size:12px; color:#94a3b8; margin-top:5px;">AI CHART ANALYZER LOGIN</div>
@@ -104,7 +125,8 @@ def login():
             <button type="submit" class="btn-cyan">LOGIN SYSTEM</button>
         </form>
         <div style="text-align:center; margin-top:20px; font-size:12px; color:#94a3b8;">No account? <a href="/register" style="color:#38bdf8; text-decoration:none;">Register</a></div>
-    </div></body></html>"""
+    </div></body></html>
+    """
     return Response(html, mimetype='text/html')
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -129,15 +151,8 @@ def register():
         except sqlite3.IntegrityError:
             error_msg = "<div style='color:#f43f5e; font-size:12px; margin-bottom:10px;'>Username taken!</div>"
 
-    html = """<!DOCTYPE html><html><head><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>STC ULTRA - Register</title>
-    <style>
-    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'Plus Jakarta Sans', sans-serif; background: #020617; color: #f8fafc; min-height: 100vh; display: flex; justify-content: center; align-items: center; padding: 10px; }
-    .mobile-frame { width: 100%; max-width: 420px; background: #060b19; border-radius: 28px; padding: 20px 16px; border: 1px solid rgba(56, 189, 248, 0.2); box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8); position: relative; min-height: 840px; display: flex; flex-direction: column; justify-content: center; }
-    .btn-cyan { width: 100%; padding: 13px; border: none; border-radius: 12px; background: #06b6d4; color: #020617; font-family: 'Orbitron', sans-serif; font-size: 12px; font-weight: 800; cursor: pointer; box-shadow: 0 0 20px rgba(6, 182, 212, 0.4); margin-top: 8px; }
-    </style></head><body>
-    <div class="mobile-frame">
+    html = COMMON_HEAD + """
+    <div class="mobile-frame" style="justify-content:center;">
         <div style="text-align:center; margin-bottom:30px;">
             <div style="font-family:'Orbitron'; font-size:22px; font-weight:900; color:#38bdf8;">STC ULTRA</div>
             <div style="font-size:12px; color:#94a3b8; margin-top:5px;">CREATE NEW ACCOUNT</div>
@@ -153,7 +168,8 @@ def register():
             <button type="submit" class="btn-cyan">CREATE ACCOUNT</button>
         </form>
         <div style="text-align:center; margin-top:20px; font-size:12px; color:#94a3b8;">Already registered? <a href="/login" style="color:#38bdf8; text-decoration:none;">Login</a></div>
-    </div></body></html>"""
+    </div></body></html>
+    """
     return Response(html, mimetype='text/html')
 
 @app.route('/activate', methods=['GET', 'POST'])
@@ -176,15 +192,8 @@ def activate():
         else:
             error_msg = "<div style='color:#f43f5e; font-size:12px; margin-bottom:10px;'>Invalid Key!</div>"
 
-    html = """<!DOCTYPE html><html><head><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>STC ULTRA - Activate</title>
-    <style>
-    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'Plus Jakarta Sans', sans-serif; background: #020617; color: #f8fafc; min-height: 100vh; display: flex; justify-content: center; align-items: center; padding: 10px; }
-    .mobile-frame { width: 100%; max-width: 420px; background: #060b19; border-radius: 28px; padding: 20px 16px; border: 1px solid rgba(56, 189, 248, 0.2); box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8); position: relative; min-height: 840px; display: flex; flex-direction: column; justify-content: center; }
-    .btn-cyan { width: 100%; padding: 13px; border: none; border-radius: 12px; background: #06b6d4; color: #020617; font-family: 'Orbitron', sans-serif; font-size: 12px; font-weight: 800; cursor: pointer; box-shadow: 0 0 20px rgba(6, 182, 212, 0.4); margin-top: 8px; }
-    </style></head><body>
-    <div class="mobile-frame">
+    html = COMMON_HEAD + """
+    <div class="mobile-frame" style="justify-content:center;">
         <div style="text-align:center; margin-bottom:25px;">
             <div style="font-family:'Orbitron'; font-size:20px; font-weight:900; color:#38bdf8;">LICENSE ACTIVATION</div>
             <div style="font-size:11px; color:#94a3b8; margin-top:5px;">ENTER KEY TO UNLOCK DASHBOARD</div>
@@ -195,7 +204,8 @@ def activate():
             <button type="submit" class="btn-cyan">VERIFY KEY</button>
         </form>
         <a href="https://t.me/ownerstcsakib" target="_blank" style="display:block; text-align:center; margin-top:15px; color:#38bdf8; text-decoration:none; font-family:'Orbitron'; font-size:11px;">CONTACT ADMIN FOR KEY</a>
-    </div></body></html>"""
+    </div></body></html>
+    """
     return Response(html, mimetype='text/html')
 
 @app.route('/dashboard')
@@ -203,33 +213,7 @@ def dashboard():
     if 'user' not in session:
         return redirect('/login')
         
-    html = """<!DOCTYPE html><html><head><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>STC ULTRA ANALYZER</title>
-    <style>
-    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'Plus Jakarta Sans', sans-serif; background: #020617; color: #f8fafc; min-height: 100vh; display: flex; justify-content: center; align-items: center; padding: 10px; }
-    .mobile-frame { width: 100%; max-width: 420px; background: #060b19; border-radius: 28px; padding: 20px 16px; border: 1px solid rgba(56, 189, 248, 0.2); box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8); position: relative; min-height: 840px; display: flex; flex-direction: column; }
-    .top-nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-    .brand-name { font-family: 'Orbitron', sans-serif; font-size: 18px; font-weight: 800; color: #f8fafc; }
-    .user-icon { width: 36px; height: 36px; border-radius: 50%; background: radial-gradient(circle, #38bdf8 0%, #030712 100%); border: 1px solid #38bdf8; display: flex; justify-content: center; align-items: center; }
-    .market-tabs { display: flex; background: rgba(15, 23, 42, 0.9); border-radius: 12px; padding: 4px; border: 1px solid rgba(56, 189, 248, 0.2); margin-bottom: 18px; }
-    .tab-item { flex: 1; padding: 10px; text-align: center; font-family: 'Orbitron', sans-serif; font-size: 11px; font-weight: 700; border-radius: 8px; color: #94a3b8; }
-    .tab-item.active { background: #06b6d4; color: #020617; box-shadow: 0 0 15px rgba(6, 182, 212, 0.5); }
-    .upload-area { border: 2px dashed rgba(56, 189, 248, 0.3); background: rgba(15, 23, 42, 0.6); border-radius: 16px; padding: 22px 15px; text-align: center; cursor: pointer; margin-bottom: 15px; }
-    .live-card { background: rgba(15, 23, 42, 0.7); border: 1px solid rgba(56, 189, 248, 0.25); border-radius: 18px; padding: 14px 16px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
-    .direction-card { background: linear-gradient(135deg, rgba(239, 68, 68, 0.15) 0%, rgba(15, 23, 42, 0.8) 100%); border: 1px solid rgba(239, 68, 68, 0.4); border-radius: 18px; padding: 16px; display: flex; align-items: center; gap: 15px; margin-bottom: 14px; }
-    .direction-card.up-bg { background: linear-gradient(135deg, rgba(34, 197, 94, 0.15) 0%, rgba(15, 23, 42, 0.8) 100%); border: 1px solid rgba(34, 197, 94, 0.4); }
-    .dir-circle { width: 48px; height: 48px; border-radius: 14px; border: 1px dashed #ef4444; display: flex; justify-content: center; align-items: center; font-size: 22px; }
-    .up-bg .dir-circle { border-color: #22c55e; }
-    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
-    .info-box { background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(56, 189, 248, 0.2); border-radius: 14px; padding: 12px; }
-    .btn-cyan { width: 100%; padding: 13px; border: none; border-radius: 12px; background: #06b6d4; color: #020617; font-family: 'Orbitron', sans-serif; font-size: 12px; font-weight: 800; cursor: pointer; box-shadow: 0 0 20px rgba(6, 182, 212, 0.4); margin-top: 8px; }
-    .bottom-nav { margin-top: auto; display: flex; justify-content: space-around; align-items: center; background: rgba(15, 23, 42, 0.95); border-radius: 16px; padding: 10px 5px; border: 1px solid rgba(56, 189, 248, 0.15); }
-    .nav-btn { text-align: center; color: #64748b; font-size: 10px; font-weight: 600; }
-    .nav-btn.active { color: #38bdf8; }
-    .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); z-index: 100; justify-content: center; align-items: center; padding: 20px; }
-    .modal-content { background: #0f172a; border: 1px solid #38bdf8; border-radius: 20px; padding: 20px; max-width: 380px; width: 100%; position: relative; }
-    </style></head><body>
+    dashboard_body = """
     <div class="mobile-frame">
         <div class="top-nav">
             <div class="brand-name">Live Signal</div>
@@ -278,4 +262,62 @@ def dashboard():
                 </div>
                 <div class="info-box">
                     <div style="font-size:9px; color:#94a3b8; font-family:'Orbitron';">TRAP LEVEL</div>
-                    <div style="font-size:13px; font-weight:800; color:#fbbf24; margin-top:4px;" id="trapVa
+                    <div style="font-size:13px; font-weight:800; color:#fbbf24; margin-top:4px;" id="trapVal">Medium</div>
+                </div>
+            </div>
+            <div class="grid-2">
+                <div class="info-box">
+                    <div style="font-size:9px; color:#94a3b8; font-family:'Orbitron';">SUPPORT</div>
+                    <div style="font-size:13px; font-weight:800; color:#e2e8f0; margin-top:4px;" id="supVal">62.702</div>
+                </div>
+                <div class="info-box">
+                    <div style="font-size:9px; color:#94a3b8; font-family:'Orbitron';">RESISTANCE</div>
+                    <div style="font-size:13px; font-weight:800; color:#e2e8f0; margin-top:4px;" id="resVal">62.746</div>
+                </div>
+            </div>
+            <button class="btn-cyan" onclick="openLogicModal()">👁 View Logic & Manipulation</button>
+            <button class="btn-cyan" style="background:transparent; border:1px solid #06b6d4; color:#06b6d4;" onclick="document.getElementById('screenshotInput').click()">🔄 Analyze Another Signal</button>
+        </div>
+        <div class="bottom-nav">
+            <div class="nav-btn">📊<br>Dashboard</div>
+            <div class="nav-btn active">📡<br>Live Signal</div>
+            <div class="nav-btn">📈<br>Analyzer</div>
+            <div class="nav-btn">⏰<br>Future</div>
+            <div class="nav-btn">💳<br>Money</div>
+        </div>
+    </div>
+    <div class="modal" id="logicModal">
+        <div class="modal-content">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                <div style="font-family:'Orbitron'; font-size:13px; font-weight:800; color:#38bdf8;">TRAP & MAIN LOGIC</div>
+                <span style="color:#f43f5e; cursor:pointer; font-weight:bold;" onclick="closeLogicModal()">&times;</span>
+            </div>
+            <div id="logicTextContent" style="font-size:12px; color:#cbd5e1; line-height:1.6; white-space:pre-wrap;"></div>
+        </div>
+    </div>
+    <script>
+        async function autoAnalyze(input) {
+            if(input.files.length === 0) return;
+            const loadingBox = document.getElementById('loadingBox');
+            const resultBox = document.getElementById('analysisResult');
+            resultBox.style.display = 'none';
+            loadingBox.style.display = 'block';
+            const reader = new FileReader();
+            reader.onload = async function() {
+                const base64Image = reader.result.split(',')[1];
+                try {
+                    const response = await fetch('/analyze', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ image: base64Image })
+                    });
+                    const data = await response.json();
+                    loadingBox.style.display = 'none';
+                    if (data.status === 'success') {
+                        document.getElementById('detectedPair').innerText = data.pair + " OTC";
+                        const dir = data.direction.toUpperCase();
+                        const dirText = document.getElementById('dirText');
+                        const dirCard = document.getElementById('dirCard');
+                        const dirArrow = document.getElementById('dirArrow');
+                        dirText.innerText = dir;
+               
