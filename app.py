@@ -54,7 +54,6 @@ COMMON_CSS = """
         overflow-x: hidden;
     }
     
-    /* Background Glowing Animation */
     body::before {
         content: '';
         position: fixed;
@@ -71,7 +70,6 @@ COMMON_CSS = """
         100% { transform: scale(1.1) rotate(10deg); }
     }
 
-    /* Glassmorphism Futuristic Card */
     .glass-card {
         width: 100%;
         max-width: 440px;
@@ -90,7 +88,6 @@ COMMON_CSS = """
         100% { transform: translateY(-6px); box-shadow: 0 20px 45px rgba(56, 189, 248, 0.35); }
     }
 
-    /* Brand Logo / Header */
     .brand-title {
         font-family: 'Orbitron', sans-serif;
         text-align: center;
@@ -102,11 +99,6 @@ COMMON_CSS = """
         letter-spacing: 2px;
         margin-bottom: 25px;
         text-transform: uppercase;
-        animation: glowText 3s infinite alternate;
-    }
-    @keyframes glowText {
-        0% { filter: drop-shadow(0 0 5px rgba(56, 189, 248, 0.4)); }
-        100% { filter: drop-shadow(0 0 15px rgba(168, 85, 247, 0.8)); }
     }
 
     .form-group { margin-bottom: 18px; text-align: left; }
@@ -130,7 +122,6 @@ COMMON_CSS = """
         background: rgba(30, 41, 59, 0.9);
     }
 
-    /* Animated Neon Buttons */
     .btn-neon {
         width: 100%;
         padding: 14px;
@@ -143,8 +134,6 @@ COMMON_CSS = """
         color: #020617;
         background: linear-gradient(135deg, #38bdf8, #22d3ee);
         cursor: pointer;
-        position: relative;
-        overflow: hidden;
         transition: all 0.3s ease;
         box-shadow: 0 0 20px rgba(56, 189, 248, 0.4);
         margin-top: 10px;
@@ -184,19 +173,19 @@ COMMON_CSS = """
 """
 
 # 1ST STEP: REGISTER & LOGIN HTML
-REGISTER_HTML = f"""<!DOCTYPE html>
+REGISTER_HTML = """<!DOCTYPE html>
 <html>
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>STC ULTRA - Register</title>
-    {COMMON_CSS}
+    """ + COMMON_CSS + """
 </head>
 <body>
     <div class="glass-card">
         <div class="brand-title">STC ULTRA ANALYZER</div>
         <h3 style="text-align:center; color:#94a3b8; margin-bottom:20px; font-size:14px; letter-spacing:1px;">CREATE ACCOUNT (STEP 1)</h3>
         
-        {{% if error %}}<div class="error-msg">{{{{ error }}}}</div>{{% endif %}}
+        {% if error %}<div class="error-msg">{{ error }}</div>{% endif %}
 
         <form method="POST">
             <div class="form-group">
@@ -221,19 +210,19 @@ REGISTER_HTML = f"""<!DOCTYPE html>
 </body>
 </html>"""
 
-LOGIN_HTML = f"""<!DOCTYPE html>
+LOGIN_HTML = """<!DOCTYPE html>
 <html>
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>STC ULTRA - Login</title>
-    {COMMON_CSS}
+    """ + COMMON_CSS + """
 </head>
 <body>
     <div class="glass-card">
         <div class="brand-title">STC ULTRA ANALYZER</div>
         <h3 style="text-align:center; color:#94a3b8; margin-bottom:20px; font-size:14px; letter-spacing:1px;">USER ACCESS LOGIN</h3>
         
-        {{% if error %}}<div class="error-msg">{{{{ error }}}}</div>{{% endif %}}
+        {% if error %}<div class="error-msg">{{ error }}</div>{% endif %}
 
         <form method="POST">
             <div class="form-group">
@@ -255,12 +244,12 @@ LOGIN_HTML = f"""<!DOCTYPE html>
 </html>"""
 
 # 2ND STEP: ACTIVATION KEY HTML
-ACTIVATE_HTML = f"""<!DOCTYPE html>
+ACTIVATE_HTML = """<!DOCTYPE html>
 <html>
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>STC ULTRA - Activation</title>
-    {COMMON_CSS}
+    """ + COMMON_CSS + """
 </head>
 <body>
     <div class="glass-card">
@@ -268,7 +257,7 @@ ACTIVATE_HTML = f"""<!DOCTYPE html>
         <h3 style="text-align:center; color:#e2e8f0; margin-bottom:10px; font-family:'Orbitron'; font-size:15px;">ACTIVATE ANALYZER (STEP 2)</h3>
         <p style="text-align:center; color:#94a3b8; font-size:13px; margin-bottom:20px;">Enter your activation key below to gain full access.</p>
 
-        {{% if error %}}<div class="error-msg">{{{{ error }}}}</div>{{% endif %}}
+        {% if error %}<div class="error-msg">{{ error }}</div>{% endif %}
 
         <form method="POST">
             <div class="form-group">
@@ -288,14 +277,14 @@ ACTIVATE_HTML = f"""<!DOCTYPE html>
 </html>"""
 
 # MAIN DASHBOARD HTML
-DASHBOARD_HTML = f"""<!DOCTYPE html>
+DASHBOARD_HTML = """<!DOCTYPE html>
 <html>
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>STC ULTRA ANALYZER</title>
-    {COMMON_CSS}
+    """ + COMMON_CSS + """
     <style>
-        .signal-card {{
+        .signal-card {
             margin-top: 20px;
             background: rgba(30, 41, 59, 0.8);
             border: 1px solid #38bdf8;
@@ -305,34 +294,34 @@ DASHBOARD_HTML = f"""<!DOCTYPE html>
             text-align: center;
             box-shadow: 0 0 25px rgba(56, 189, 248, 0.2);
             animation: fadeIn 0.5s ease-in-out;
-        }}
-        @keyframes fadeIn {{ from {{ opacity: 0; transform: scale(0.95); }} to {{ opacity: 1; transform: scale(1); }} }}
+        }
+        @keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
         
-        .direction-box {{
+        .direction-box {
             font-family: 'Orbitron', sans-serif;
             font-size: 32px;
             font-weight: 900;
             margin: 12px 0;
             letter-spacing: 2px;
-        }}
-        .dir-up {{ color: #22c55e; filter: drop-shadow(0 0 10px rgba(34, 197, 94, 0.8)); }}
-        .dir-down {{ color: #f43f5e; filter: drop-shadow(0 0 10px rgba(244, 63, 94, 0.8)); }}
+        }
+        .dir-up { color: #22c55e; filter: drop-shadow(0 0 10px rgba(34, 197, 94, 0.8)); }
+        .dir-down { color: #f43f5e; filter: drop-shadow(0 0 10px rgba(244, 63, 94, 0.8)); }
 
-        .meta-grid {{
+        .meta-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 10px;
             margin-top: 15px;
             font-size: 13px;
-        }}
-        .meta-item {{
+        }
+        .meta-item {
             background: rgba(15, 23, 42, 0.9);
             padding: 10px;
             border-radius: 8px;
             border: 1px solid rgba(255,255,255,0.05);
-        }}
+        }
         
-        .logic-btn {{
+        .logic-btn {
             width: 100%;
             padding: 12px;
             background: rgba(56, 189, 248, 0.15);
@@ -345,10 +334,10 @@ DASHBOARD_HTML = f"""<!DOCTYPE html>
             cursor: pointer;
             margin-top: 15px;
             transition: all 0.3s ease;
-        }}
-        .logic-btn:hover {{ background: #38bdf8; color: #020617; }}
+        }
+        .logic-btn:hover { background: #38bdf8; color: #020617; }
         
-        .logic-text {{
+        .logic-text {
             display: none;
             margin-top: 12px;
             padding: 12px;
@@ -359,8 +348,8 @@ DASHBOARD_HTML = f"""<!DOCTYPE html>
             color: #cbd5e1;
             text-align: left;
             white-space: pre-wrap;
-        }}
-        .loading-spinner {{ display: none; margin-top: 15px; color: #38bdf8; font-family: 'Orbitron'; font-size: 13px; text-align: center; }}
+        }
+        .loading-spinner { display: none; margin-top: 15px; color: #38bdf8; font-family: 'Orbitron'; font-size: 13px; text-align: center; }
     </style>
 </head>
 <body>
@@ -405,17 +394,17 @@ DASHBOARD_HTML = f"""<!DOCTYPE html>
     </div>
 
     <script>
-        async function analyzeScreenshot() {{
+        async function analyzeScreenshot() {
             const fileInput = document.getElementById('screenshotInput');
             const marketPair = document.getElementById('marketPair').value;
             const signalCard = document.getElementById('signalCard');
             const loadingBox = document.getElementById('loadingBox');
             const logicBox = document.getElementById('logicBox');
 
-            if (fileInput.files.length === 0) {{
+            if (fileInput.files.length === 0) {
                 alert('Please upload a chart screenshot first!');
                 return;
-            }}
+            }
 
             signalCard.style.display = 'none';
             logicBox.style.display = 'none';
@@ -424,68 +413,68 @@ DASHBOARD_HTML = f"""<!DOCTYPE html>
             const file = fileInput.files[0];
             const reader = new FileReader();
 
-            reader.onload = async function() {{
+            reader.onload = async function() {
                 const base64Image = reader.result.split(',')[1];
-                try {{
-                    const response = await fetch('/analyze', {{
+                try {
+                    const response = await fetch('/analyze', {
                         method: 'POST',
-                        headers: {{ 'Content-Type': 'application/json' }},
-                        body: JSON.stringify({{ image: base64Image, market: marketPair }})
-                    }});
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ image: base64Image, market: marketPair })
+                    });
                     const data = await response.json();
                     loadingBox.style.display = 'none';
 
-                    if (data.status === 'success') {{
+                    if (data.status === 'success') {
                         const dir = data.direction.toUpperCase();
                         const dirText = document.getElementById('directionText');
                         dirText.innerText = dir;
                         
-                        if(dir.includes('CALL') || dir.includes('UP') || dir.includes('BUY')) {{
+                        if(dir.includes('CALL') || dir.includes('UP') || dir.includes('BUY')) {
                             dirText.className = 'direction-box dir-up';
                             document.getElementById('signalType').innerText = 'CALL / BUY';
-                        }} else {{
+                        } else {
                             dirText.className = 'direction-box dir-down';
                             document.getElementById('signalType').innerText = 'PUT / SELL';
-                        }}
+                        }
                         
                         document.getElementById('trendText').innerText = data.trend || 'Bearish';
                         document.getElementById('strengthText').innerText = data.strength || 'High';
                         logicBox.innerText = data.reasoning;
                         signalCard.style.display = 'block';
-                    }} else {{
+                    } else {
                         alert(data.message);
-                    }}
-                }} catch (err) {{
+                    }
+                } catch (err) {
                     loadingBox.style.display = 'none';
                     alert('Connection Failed: ' + err.message);
-                }}
-            }};
+                }
+            };
             reader.readAsDataURL(file);
-        }}
+        }
 
-        function toggleLogic() {{
+        function toggleLogic() {
             const logicBox = document.getElementById('logicBox');
             logicBox.style.display = logicBox.style.display === 'none' ? 'block' : 'none';
-        }}
+        }
     </script>
 </body>
 </html>"""
 
 # ADMIN PANEL HTML
-ADMIN_HTML = f"""<!DOCTYPE html>
+ADMIN_HTML = """<!DOCTYPE html>
 <html>
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Panel - STC ULTRA</title>
-    {COMMON_CSS}
+    """ + COMMON_CSS + """
     <style>
-        .glass-card {{ max-width: 680px; }}
-        table {{ width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 13px; }}
-        th, td {{ padding: 12px 10px; border: 1px solid rgba(255,255,255,0.08); text-align: center; }}
-        th {{ background: rgba(30, 41, 59, 0.9); color: #38bdf8; font-family: 'Orbitron'; }}
-        .btn-del {{ background: #f43f5e; color: #fff; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-weight: bold; }}
-        .status-active {{ color: #22c55e; font-weight: bold; }}
-        .status-pending {{ color: #eab308; font-weight: bold; }}
+        .glass-card { max-width: 680px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 13px; }
+        th, td { padding: 12px 10px; border: 1px solid rgba(255,255,255,0.08); text-align: center; }
+        th { background: rgba(30, 41, 59, 0.9); color: #38bdf8; font-family: 'Orbitron'; }
+        .btn-del { background: #f43f5e; color: #fff; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-weight: bold; }
+        .status-active { color: #22c55e; font-weight: bold; }
+        .status-pending { color: #eab308; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -503,23 +492,42 @@ ADMIN_HTML = f"""<!DOCTYPE html>
                 <th>Status</th>
                 <th>Action</th>
             </tr>
-            {{% for u in users %}}
+            {% for u in users %}
             <tr>
-                <td>{{{{ u[0] }}}}</td>
-                <td>{{{{ u[1] }}}}</td>
-                <td style="font-size:11px; color:#94a3b8;">{{{{ u[2] }}}}</td>
+                <td>{{ u[0] }}</td>
+                <td>{{ u[1] }}</td>
+                <td style="font-size:11px; color:#94a3b8;">{{ u[2] }}</td>
                 <td>
-                    {{% if u[5] == 1 %}}
+                    {% if u[5] == 1 %}
                     <span class="status-active">Active</span>
-                    {{% else %}}
+                    {% else %}
                     <span class="status-pending">Pending</span>
-                    {{% endif %}}
+                    {% endif %}
                 </td>
                 <td>
-                    {{% if u[1] != 'admin' %}}
-                    <form action="/admin/delete/{{{{ u[0] }}}}" method="POST" style="margin:0;">
+                    {% if u[1] != 'admin' %}
+                    <form action="/admin/delete/{{ u[0] }}" method="POST" style="margin:0;">
                         <button type="submit" class="btn-del">Delete</button>
                     </form>
-                    {{% else %}}
+                    {% else %}
                     <span style="color:#38bdf8;">Admin</span>
-                    {{%
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+</body>
+</html>"""
+
+@app.route('/')
+def index():
+    if 'user' in session:
+        if session['role'] == 'admin':
+            return redirect(url_for('admin_panel'))
+        
+        conn = sqlite3.connect('database.db')
+        cursor = conn.cursor()
+        cursor.execute("SELECT is_activated FROM users WHERE username = ?", (session['user'],))
+        row = cursor.fetchone()
+        co
