@@ -2,7 +2,7 @@ import os
 import json
 import sqlite3
 import base64
-from flask import Flask, request, jsonify, session, redirect, Response
+from flask import Flask, request, jsonify, session, redirect, Response, render_template_string
 from groq import Groq
 
 app = Flask(__name__)
@@ -37,7 +37,8 @@ def init_db():
 
 init_db()
 
-COMMON_STYLE = """<style>
+COMMON_STYLE = """
+<style>
 @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body {
@@ -197,7 +198,8 @@ body {
 .nav-btn.active { color: #38bdf8; }
 .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); z-index: 100; justify-content: center; align-items: center; padding: 20px; }
 .modal-content { background: #0f172a; border: 1px solid #38bdf8; border-radius: 20px; padding: 20px; max-width: 380px; width: 100%; position: relative; }
-</style>"""
+</style>
+"""
 
 @app.route('/')
 def index():
@@ -244,7 +246,7 @@ def login():
         else:
             error_msg = "<div style='color:#f43f5e; font-size:12px; margin-bottom:10px;'>Invalid credentials!</div>"
 
-    html = """<!DOCTYPE html><html><head><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>STC ULTRA - Login</title>""" + COMMON_STYLE + """</head><body>
+    html = COMMON_STYLE + """
     <div class="mobile-frame" style="justify-content:center;">
         <div style="text-align:center; margin-bottom:30px;">
             <div style="font-family:'Orbitron'; font-size:22px; font-weight:900; color:#38bdf8;">STC ULTRA</div>
@@ -259,7 +261,8 @@ def login():
             <button type="submit" class="btn-cyan">LOGIN SYSTEM</button>
         </form>
         <div style="text-align:center; margin-top:20px; font-size:12px; color:#94a3b8;">No account? <a href="/register" style="color:#38bdf8; text-decoration:none;">Register</a></div>
-    </div></body></html>"""
+    </div>
+    """
     return Response(html, mimetype='text/html')
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -284,7 +287,7 @@ def register():
         except sqlite3.IntegrityError:
             error_msg = "<div style='color:#f43f5e; font-size:12px; margin-bottom:10px;'>Username taken!</div>"
 
-    html = """<!DOCTYPE html><html><head><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>STC ULTRA - Register</title>""" + COMMON_STYLE + """</head><body>
+    html = COMMON_STYLE + """
     <div class="mobile-frame" style="justify-content:center;">
         <div style="text-align:center; margin-bottom:30px;">
             <div style="font-family:'Orbitron'; font-size:22px; font-weight:900; color:#38bdf8;">STC ULTRA</div>
@@ -301,7 +304,8 @@ def register():
             <button type="submit" class="btn-cyan">CREATE ACCOUNT</button>
         </form>
         <div style="text-align:center; margin-top:20px; font-size:12px; color:#94a3b8;">Already registered? <a href="/login" style="color:#38bdf8; text-decoration:none;">Login</a></div>
-    </div></body></html>"""
+    </div>
+    """
     return Response(html, mimetype='text/html')
 
 @app.route('/activate', methods=['GET', 'POST'])
@@ -324,7 +328,7 @@ def activate():
         else:
             error_msg = "<div style='color:#f43f5e; font-size:12px; margin-bottom:10px;'>Invalid Key!</div>"
 
-    html = """<!DOCTYPE html><html><head><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>STC ULTRA - Activate</title>""" + COMMON_STYLE + """</head><body>
+    html = COMMON_STYLE + """
     <div class="mobile-frame" style="justify-content:center;">
         <div style="text-align:center; margin-bottom:25px;">
             <div style="font-family:'Orbitron'; font-size:20px; font-weight:900; color:#38bdf8;">LICENSE ACTIVATION</div>
@@ -332,11 +336,12 @@ def activate():
         </div>
         """ + error_msg + """
         <form method="POST">
-            <input type="text" name="license_key" required style="width:100%; padding:14px; background:#0f172a; border:1px solid #38bdf8; color:#38bdf8; font-family:'Orbitron'; text-align:center; font-weight:bold; border-radius:10px; margin-bottom:15px;">
+            <input type="text" name="license_key" autocomplete="off" required style="width:100%; padding:14px; background:#0f172a; border:1px solid #38bdf8; color:#38bdf8; font-family:'Orbitron'; text-align:center; font-weight:bold; border-radius:10px; margin-bottom:15px;">
             <button type="submit" class="btn-cyan">VERIFY KEY</button>
         </form>
         <a href="https://t.me/ownerstcsakib" target="_blank" style="display:block; text-align:center; margin-top:15px; color:#38bdf8; text-decoration:none; font-family:'Orbitron'; font-size:11px;">CONTACT ADMIN FOR KEY</a>
-    </div></body></html>"""
+    </div>
+    """
     return Response(html, mimetype='text/html')
 
 @app.route('/dashboard')
@@ -344,7 +349,7 @@ def dashboard():
     if 'user' not in session:
         return redirect('/login')
         
-    html = """<!DOCTYPE html><html><head><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>STC ULTRA ANALYZER</title>""" + COMMON_STYLE + """</head><body>
+    html = COMMON_STYLE + """
     <div class="mobile-frame">
         <div class="top-nav">
             <div class="brand-name">Live Signal</div>
@@ -436,4 +441,14 @@ def dashboard():
             const reader = new FileReader();
             reader.onload = async function() {
                 const base64Image = reader.result.split(',')[1];
- 
+                try {
+                    const response = await fetch('/analyze', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ image: base64Image })
+                    });
+                    const data = await response.json();
+                    loadingBox.style.display = 'none';
+                    if (data.status === 'success') {
+                        document.getElementById('detectedPair').innerText = data.pair + " OTC";
+                        const dir = data.di
