@@ -37,10 +37,8 @@ def init_db():
 
 init_db()
 
-# EXACT VIDEO & SCREENSHOT UI STYLES
 COMMON_STYLE = """<style>
 @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
-
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body {
     font-family: 'Plus Jakarta Sans', sans-serif;
@@ -52,7 +50,6 @@ body {
     align-items: center;
     padding: 10px;
 }
-
 .mobile-frame {
     width: 100%;
     max-width: 420px;
@@ -66,7 +63,6 @@ body {
     display: flex;
     flex-direction: column;
 }
-
 .top-nav {
     display: flex;
     justify-content: space-between;
@@ -88,9 +84,7 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    box-shadow: 0 0 10px rgba(56, 189, 248, 0.5);
 }
-
 .market-tabs {
     display: flex;
     background: rgba(15, 23, 42, 0.9);
@@ -108,14 +102,12 @@ body {
     font-weight: 700;
     border-radius: 8px;
     color: #94a3b8;
-    cursor: pointer;
 }
 .tab-item.active {
     background: #06b6d4;
     color: #020617;
     box-shadow: 0 0 15px rgba(6, 182, 212, 0.5);
 }
-
 .upload-area {
     border: 2px dashed rgba(56, 189, 248, 0.3);
     background: rgba(15, 23, 42, 0.6);
@@ -125,7 +117,6 @@ body {
     cursor: pointer;
     margin-bottom: 15px;
 }
-
 .live-card {
     background: rgba(15, 23, 42, 0.7);
     border: 1px solid rgba(56, 189, 248, 0.25);
@@ -136,7 +127,6 @@ body {
     align-items: center;
     margin-bottom: 14px;
 }
-
 .direction-card {
     background: linear-gradient(135deg, rgba(239, 68, 68, 0.15) 0%, rgba(15, 23, 42, 0.8) 100%);
     border: 1px solid rgba(239, 68, 68, 0.4);
@@ -151,7 +141,6 @@ body {
     background: linear-gradient(135deg, rgba(34, 197, 94, 0.15) 0%, rgba(15, 23, 42, 0.8) 100%);
     border: 1px solid rgba(34, 197, 94, 0.4);
 }
-
 .dir-circle {
     width: 48px;
     height: 48px;
@@ -163,7 +152,6 @@ body {
     font-size: 22px;
 }
 .up-bg .dir-circle { border-color: #22c55e; }
-
 .grid-2 {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -176,7 +164,6 @@ body {
     border-radius: 14px;
     padding: 12px;
 }
-
 .btn-cyan {
     width: 100%;
     padding: 13px;
@@ -191,7 +178,6 @@ body {
     box-shadow: 0 0 20px rgba(6, 182, 212, 0.4);
     margin-top: 8px;
 }
-
 .bottom-nav {
     margin-top: auto;
     display: flex;
@@ -207,10 +193,8 @@ body {
     color: #64748b;
     font-size: 10px;
     font-weight: 600;
-    cursor: pointer;
 }
 .nav-btn.active { color: #38bdf8; }
-
 .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); z-index: 100; justify-content: center; align-items: center; padding: 20px; }
 .modal-content { background: #0f172a; border: 1px solid #38bdf8; border-radius: 20px; padding: 20px; max-width: 380px; width: 100%; position: relative; }
 </style>"""
@@ -236,7 +220,7 @@ def index():
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    error_html = ""
+    error_msg = ""
     if request.method == 'POST':
         username = request.form.get('username', '').strip()
         password = request.form.get('password', '').strip()
@@ -258,15 +242,15 @@ def login():
             else:
                 return redirect('/activate')
         else:
-            error_html = "<div style='color:#f43f5e; font-size:12px; margin-bottom:10px;'>Invalid credentials!</div>"
+            error_msg = "<div style='color:#f43f5e; font-size:12px; margin-bottom:10px;'>Invalid credentials!</div>"
 
-    html = f"""<!DOCTYPE html><html><head><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>STC ULTRA - Login</title>{COMMON_STYLE}</head><body>
+    html = """<!DOCTYPE html><html><head><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>STC ULTRA - Login</title>""" + COMMON_STYLE + """</head><body>
     <div class="mobile-frame" style="justify-content:center;">
         <div style="text-align:center; margin-bottom:30px;">
             <div style="font-family:'Orbitron'; font-size:22px; font-weight:900; color:#38bdf8;">STC ULTRA</div>
             <div style="font-size:12px; color:#94a3b8; margin-top:5px;">AI CHART ANALYZER LOGIN</div>
         </div>
-        {error_html}
+        """ + error_msg + """
         <form method="POST">
             <div style="margin-bottom:15px;"><label style="font-size:11px; color:#94a3b8; font-family:'Orbitron';">USERNAME</label>
             <input type="text" name="username" required style="width:100%; padding:12px; background:#0f172a; border:1px solid rgba(56,189,248,0.3); color:#fff; border-radius:10px; margin-top:5px;"></div>
@@ -280,7 +264,7 @@ def login():
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
-    error_html = ""
+    error_msg = ""
     if request.method == 'POST':
         username = request.form.get('username', '').strip()
         email = request.form.get('email', '').strip()
@@ -298,15 +282,15 @@ def register():
             session['role'] = 'user'
             return redirect('/activate')
         except sqlite3.IntegrityError:
-            error_html = "<div style='color:#f43f5e; font-size:12px; margin-bottom:10px;'>Username taken!</div>"
+            error_msg = "<div style='color:#f43f5e; font-size:12px; margin-bottom:10px;'>Username taken!</div>"
 
-    html = f"""<!DOCTYPE html><html><head><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>STC ULTRA - Register</title>{COMMON_STYLE}</head><body>
+    html = """<!DOCTYPE html><html><head><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>STC ULTRA - Register</title>""" + COMMON_STYLE + """</head><body>
     <div class="mobile-frame" style="justify-content:center;">
         <div style="text-align:center; margin-bottom:30px;">
             <div style="font-family:'Orbitron'; font-size:22px; font-weight:900; color:#38bdf8;">STC ULTRA</div>
             <div style="font-size:12px; color:#94a3b8; margin-top:5px;">CREATE NEW ACCOUNT</div>
         </div>
-        {error_html}
+        """ + error_msg + """
         <form method="POST">
             <div style="margin-bottom:12px;"><label style="font-size:11px; color:#94a3b8; font-family:'Orbitron';">USERNAME</label>
             <input type="text" name="username" required style="width:100%; padding:12px; background:#0f172a; border:1px solid rgba(56,189,248,0.3); color:#fff; border-radius:10px; margin-top:4px;"></div>
@@ -325,7 +309,7 @@ def activate():
     if 'user' not in session:
         return redirect('/login')
         
-    error_html = ""
+    error_msg = ""
     if request.method == 'POST':
         key = request.form.get('license_key', '').strip()
         valid_keys = ["STC-146625-@@-$$", "STC-999999-@@-$$", "STC-ULTRA-2026-VIP"]
@@ -338,17 +322,17 @@ def activate():
             conn.close()
             return redirect('/dashboard')
         else:
-            error_html = "<div style='color:#f43f5e; font-size:12px; margin-bottom:10px;'>Invalid Key!</div>"
+            error_msg = "<div style='color:#f43f5e; font-size:12px; margin-bottom:10px;'>Invalid Key!</div>"
 
-    html = f"""<!DOCTYPE html><html><head><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>STC ULTRA - Activate</title>{COMMON_STYLE}</head><body>
+    html = """<!DOCTYPE html><html><head><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>STC ULTRA - Activate</title>""" + COMMON_STYLE + """</head><body>
     <div class="mobile-frame" style="justify-content:center;">
         <div style="text-align:center; margin-bottom:25px;">
             <div style="font-family:'Orbitron'; font-size:20px; font-weight:900; color:#38bdf8;">LICENSE ACTIVATION</div>
             <div style="font-size:11px; color:#94a3b8; margin-top:5px;">ENTER KEY TO UNLOCK DASHBOARD</div>
         </div>
-        {error_html}
+        """ + error_msg + """
         <form method="POST">
-            <input type="text" name="license_key" placeholder="STC-146625-@@-$$" required style="width:100%; padding:14px; background:#0f172a; border:1px solid #38bdf8; color:#38bdf8; font-family:'Orbitron'; text-align:center; font-weight:bold; border-radius:10px; margin-bottom:15px;">
+            <input type="text" name="license_key" required style="width:100%; padding:14px; background:#0f172a; border:1px solid #38bdf8; color:#38bdf8; font-family:'Orbitron'; text-align:center; font-weight:bold; border-radius:10px; margin-bottom:15px;">
             <button type="submit" class="btn-cyan">VERIFY KEY</button>
         </form>
         <a href="https://t.me/ownerstcsakib" target="_blank" style="display:block; text-align:center; margin-top:15px; color:#38bdf8; text-decoration:none; font-family:'Orbitron'; font-size:11px;">CONTACT ADMIN FOR KEY</a>
@@ -360,29 +344,23 @@ def dashboard():
     if 'user' not in session:
         return redirect('/login')
         
-    html = f"""<!DOCTYPE html><html><head><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>STC ULTRA ANALYZER</title>{COMMON_STYLE}</head><body>
-
+    html = """<!DOCTYPE html><html><head><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>STC ULTRA ANALYZER</title>""" + COMMON_STYLE + """</head><body>
     <div class="mobile-frame">
         <div class="top-nav">
             <div class="brand-name">Live Signal</div>
             <div class="user-icon"><a href="/logout" style="color:#38bdf8; text-decoration:none; font-size:14px;">👤</a></div>
         </div>
-
         <div class="market-tabs">
             <div class="tab-item active">OTC Market</div>
             <div class="tab-item">Real Market</div>
         </div>
-
         <div class="upload-area" onclick="document.getElementById('screenshotInput').click()">
             <div style="font-size:24px; color:#38bdf8; margin-bottom:4px;">📷</div>
             <div style="font-family:'Orbitron'; font-size:11px; font-weight:700; color:#e2e8f0;">UPLOAD CHART SCREENSHOT</div>
             <div style="font-size:10px; color:#64748b; margin-top:2px;">AI Auto-Detects Pair & Signals</div>
             <input type="file" id="screenshotInput" accept="image/*" style="display:none;" onchange="autoAnalyze(this)">
         </div>
-
         <div id="loadingBox" style="display:none; text-align:center; padding:15px; color:#38bdf8; font-family:'Orbitron'; font-size:11px;">⚡ SCANNING CHART PATTERNS...</div>
-
-        <!-- SIGNAL CARD CONTAINER -->
         <div id="analysisResult" style="display:none;">
             <div class="live-card">
                 <div>
@@ -391,7 +369,6 @@ def dashboard():
                 </div>
                 <div style="font-size:20px;">🇺🇸🇵🇭</div>
             </div>
-
             <div class="direction-card" id="dirCard">
                 <div class="dir-circle" id="dirArrow">↓</div>
                 <div>
@@ -400,7 +377,6 @@ def dashboard():
                     <div style="font-size:10px; font-weight:700; color:#e2e8f0;" id="dirSub">PUT / SELL</div>
                 </div>
             </div>
-
             <div style="background:rgba(15,23,42,0.8); border:1px solid rgba(56,189,248,0.2); border-radius:14px; padding:12px; margin-bottom:10px;">
                 <div style="display:flex; justify-content:space-between; font-size:10px; font-family:'Orbitron'; margin-bottom:6px;">
                     <span style="color:#94a3b8;">SIGNAL STRENGTH</span>
@@ -410,7 +386,6 @@ def dashboard():
                     <div id="strengthBar" style="width:70%; height:100%; background:linear-gradient(90deg, #38bdf8, #fbbf24);"></div>
                 </div>
             </div>
-
             <div class="grid-2">
                 <div class="info-box">
                     <div style="font-size:9px; color:#94a3b8; font-family:'Orbitron';">MARKET TREND</div>
@@ -421,7 +396,6 @@ def dashboard():
                     <div style="font-size:13px; font-weight:800; color:#fbbf24; margin-top:4px;" id="trapVal">Medium</div>
                 </div>
             </div>
-
             <div class="grid-2">
                 <div class="info-box">
                     <div style="font-size:9px; color:#94a3b8; font-family:'Orbitron';">SUPPORT</div>
@@ -432,11 +406,9 @@ def dashboard():
                     <div style="font-size:13px; font-weight:800; color:#e2e8f0; margin-top:4px;" id="resVal">62.746</div>
                 </div>
             </div>
-
             <button class="btn-cyan" onclick="openLogicModal()">👁 View Logic & Manipulation</button>
             <button class="btn-cyan" style="background:transparent; border:1px solid #06b6d4; color:#06b6d4;" onclick="document.getElementById('screenshotInput').click()">🔄 Analyze Another Signal</button>
         </div>
-
         <div class="bottom-nav">
             <div class="nav-btn">📊<br>Dashboard</div>
             <div class="nav-btn active">📡<br>Live Signal</div>
@@ -445,8 +417,6 @@ def dashboard():
             <div class="nav-btn">💳<br>Money</div>
         </div>
     </div>
-
-    <!-- MODAL POPUP -->
     <div class="modal" id="logicModal">
         <div class="modal-content">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
@@ -456,12 +426,14 @@ def dashboard():
             <div id="logicTextContent" style="font-size:12px; color:#cbd5e1; line-height:1.6; white-space:pre-wrap;"></div>
         </div>
     </div>
-
     <script>
-        async function autoAnalyze(input) {{
+        async function autoAnalyze(input) {
             if(input.files.length === 0) return;
             const loadingBox = document.getElementById('loadingBox');
             const resultBox = document.getElementById('analysisResult');
-
             resultBox.style.display = 'none';
-            
+            loadingBox.style.display = 'block';
+            const reader = new FileReader();
+            reader.onload = async function() {
+                const base64Image = reader.result.split(',')[1];
+ 
