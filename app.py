@@ -13,18 +13,30 @@ PORT = int(os.environ.get("PORT", 5000))
 GROQ_API_KEY = os.environ.get("GROQ_API_KEY", "")
 client = Groq(api_key=GROQ_API_KEY) if GROQ_API_KEY else None
 
-# Database Setup
+# Database Setup with safe migration
 def init_db():
     conn = sqlite3.connect('database.db')
     cursor = conn.cursor()
-    cursor.execute('''CREATE TABLE IF NOT EXISTS users (
-                        id INTEGER PRIMARY KEY AUTOINCREMENT,
-                        username TEXT UNIQUE NOT NULL,
-                        email TEXT NOT NULL,
-                        password TEXT NOT NULL,
-                        role TEXT DEFAULT 'user',
-                        is_activated INTEGER DEFAULT 0)''')
     
+    # Check if table exists and has proper columns, if not recreate safely
+    cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='users'")
+    table_exists = cursor.fetchone()
+    
+    if not table_exists:
+        cursor.execute('''CREATE TABLE users (
+                            id INTEGER PRIMARY KEY AUTOINCREMENT,
+                            username TEXT UNIQUE NOT NULL,
+                            email TEXT NOT NULL,
+                            password TEXT NOT NULL,
+                            role TEXT DEFAULT 'user',
+                            is_activated INTEGER DEFAULT 0)''')
+    else:
+        # Check columns
+        cursor.execute("PRAGMA table_info(users)")
+        columns = [col[1] for col in cursor.fetchall()]
+        if 'is_activated' not in columns:
+            cursor.execute("ALTER TABLE users ADD COLUMN is_activated INTEGER DEFAULT 0")
+            
     cursor.execute("SELECT * FROM users WHERE username = 'admin'")
     if not cursor.fetchone():
         cursor.execute("INSERT INTO users (username, email, password, role, is_activated) VALUES (?, ?, ?, ?, ?)", 
@@ -270,6 +282,8 @@ def register():
             return redirect('/activate')
         except sqlite3.IntegrityError:
             error_msg = "<div style='color:#f43f5e; font-size:12px; margin-bottom:10px;'>Username taken!</div>"
+        except Exception as e:
+            error_msg = f"<div style='color:#f43f5e; font-size:12px; margin-bottom:10px;'>Error: {str(e)}</div>"
 
     html = f"""<!DOCTYPE html><html><head><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>STC ULTRA - Register</title><style>{BASE_STYLE}</style></head><body>
     <div class="mobile-frame" style="justify-content:center;">
@@ -284,17 +298,4 @@ def register():
             <div style="margin-bottom:12px;"><label style="font-size:11px; color:#94a3b8; font-family:'Orbitron';">GMAIL</label>
             <input type="email" name="email" required style="width:100%; padding:12px; background:#0f172a; border:1px solid rgba(56,189,248,0.3); color:#fff; border-radius:10px; margin-top:4px;"></div>
             <div style="margin-bottom:20px;"><label style="font-size:11px; color:#94a3b8; font-family:'Orbitron';">PASSWORD</label>
-            <input type="password" name="password" required style="width:100%; padding:12px; background:#0f172a; border:1px solid rgba(56,189,248,0.3); color:#fff; border-radius:10px; margin-top:4px;"></div>
-            <button type="submit" class="btn-cyan">CREATE ACCOUNT</button>
-        </form>
-        <div style="text-align:center; margin-top:20px; font-size:12px; color:#94a3b8;">Already registered? <a href="/login" style="color:#38bdf8; text-decoration:none;">Login</a></div>
-    </div></body></html>"""
-    return Response(html, mimetype='text/html')
-
-@app.route('/activate', methods=['GET', 'POST'])
-def activate():
-    if 'user' not in session:
-        return redirect('/login')
-    error_msg = ""
-    if request.method == 'POST':
-        key = request.fo
+            <input type="password" name="password" required style="width
