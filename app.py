@@ -205,89 +205,71 @@ DASHBOARD_HTML = """<!DOCTYPE html><html><head><meta name="viewport" content="wi
         function closeLogicModal() { document.getElementById('logicModal').style.display = 'none'; }
     </script></body></html>"""
 
+LOGIN_TEMPLATE = """<!DOCTYPE html><html><head><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>STC ULTRA - Login</title><style>""" + BASE_STYLE + """</style></head><body>
+<div class="mobile-frame" style="justify-content:center;">
+    <div style="text-align:center; margin-bottom:30px;">
+        <div style="font-family:'Orbitron'; font-size:22px; font-weight:900; color:#38bdf8;">STC ULTRA</div>
+        <div style="font-size:12px; color:#94a3b8; margin-top:5px;">AI CHART ANALYZER LOGIN</div>
+    </div>
+    __ERROR_MSG__
+    <form method="POST">
+        <div style="margin-bottom:15px;"><label style="font-size:11px; color:#94a3b8; font-family:'Orbitron';">USERNAME</label>
+        <input type="text" name="username" required style="width:100%; padding:12px; background:#0f172a; border:1px solid rgba(56,189,248,0.3); color:#fff; border-radius:10px; margin-top:5px;"></div>
+        <div style="margin-bottom:20px;"><label style="font-size:11px; color:#94a3b8; font-family:'Orbitron';">PASSWORD</label>
+        <input type="password" name="password" required style="width:100%; padding:12px; background:#0f172a; border:1px solid rgba(56,189,248,0.3); color:#fff; border-radius:10px; margin-top:5px;"></div>
+        <button type="submit" class="btn-cyan">LOGIN SYSTEM</button>
+    </form>
+    <div style="text-align:center; margin-top:20px; font-size:12px; color:#94a3b8;">No account? <a href="/register" style="color:#38bdf8; text-decoration:none;">Register</a></div>
+</div></body></html>"""
+
+REGISTER_TEMPLATE = """<!DOCTYPE html><html><head><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>STC ULTRA - Register</title><style>""" + BASE_STYLE + """</style></head><body>
+<div class="mobile-frame" style="justify-content:center;">
+    <div style="text-align:center; margin-bottom:30px;">
+        <div style="font-family:'Orbitron'; font-size:22px; font-weight:900; color:#38bdf8;">STC ULTRA</div>
+        <div style="font-size:12px; color:#94a3b8; margin-top:5px;">CREATE NEW ACCOUNT</div>
+    </div>
+    __ERROR_MSG__
+    <form method="POST">
+        <div style="margin-bottom:12px;"><label style="font-size:11px; color:#94a3b8; font-family:'Orbitron';">USERNAME</label>
+        <input type="text" name="username" required style="width:100%; padding:12px; background:#0f172a; border:1px solid rgba(56,189,248,0.3); color:#fff; border-radius:10px; margin-top:4px;"></div>
+        <div style="margin-bottom:12px;"><label style="font-size:11px; color:#94a3b8; font-family:'Orbitron';">GMAIL</label>
+        <input type="email" name="email" required style="width:100%; padding:12px; background:#0f172a; border:1px solid rgba(56,189,248,0.3); color:#fff; border-radius:10px; margin-top:4px;"></div>
+        <div style="margin-bottom:20px;"><label style="font-size:11px; color:#94a3b8; font-family:'Orbitron';">PASSWORD</label>
+        <input type="password" name="password" required style="width:100%; padding:12px; background:#0f172a; border:1px solid rgba(56,189,248,0.3); color:#fff; border-radius:10px; margin-top:4px;"></div>
+        <button type="submit" class="btn-cyan">CREATE ACCOUNT</button>
+    </form>
+    <div style="text-align:center; margin-top:20px; font-size:12px; color:#94a3b8;">Already registered? <a href="/login" style="color:#38bdf8; text-decoration:none;">Login</a></div>
+</div></body></html>"""
+
+ACTIVATE_TEMPLATE = """<!DOCTYPE html><html><head><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>STC ULTRA - Activate</title><style>""" + BASE_STYLE + """</style></head><body>
+<div class="mobile-frame" style="justify-content:center;">
+    <div style="text-align:center; margin-bottom:25px;">
+        <div style="font-family:'Orbitron'; font-size:20px; font-weight:900; color:#38bdf8;">LICENSE ACTIVATION</div>
+        <div style="font-size:11px; color:#94a3b8; margin-top:5px;">ENTER KEY TO UNLOCK DASHBOARD</div>
+    </div>
+    __ERROR_MSG__
+    <form method="POST">
+        <input type="text" name="license_key" autocomplete="off" required style="width:100%; padding:14px; background:#0f172a; border:1px solid #38bdf8; color:#38bdf8; font-family:'Orbitron'; text-align:center; font-weight:bold; border-radius:10px; margin-bottom:15px;">
+        <button type="submit" class="btn-cyan">VERIFY KEY</button>
+    </form>
+    <a href="https://t.me/ownerstcsakib" target="_blank" style="display:block; text-align:center; margin-top:15px; color:#38bdf8; text-decoration:none; font-family:'Orbitron'; font-size:11px;">CONTACT ADMIN FOR KEY</a>
+    <div style="text-align:center; margin-top:15px;"><a href="/logout" style="color:#f43f5e; text-decoration:none; font-size:11px;">Logout Account</a></div>
+</div></body></html>"""
+
+ADMIN_TEMPLATE = """<!DOCTYPE html><html><head><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Admin Panel</title><style>""" + BASE_STYLE + """</style></head><body>
+<div class="mobile-frame" style="justify-content:flex-start;">
+    <div style="font-family:'Orbitron'; font-size:16px; color:#38bdf8; margin-bottom:15px;">ADMIN PANEL</div>
+    <table style="width:100%; font-size:11px; border-collapse:collapse;">
+        <tr style="color:#38bdf8; border-bottom:1px solid #38bdf8;"><th>ID</th><th>User</th><th>Status</th><th>Action</th></tr>
+        __USER_ROWS__
+    </table>
+    <a href="/logout" style="display:block; margin-top:20px; color:#f43f5e; font-size:12px; text-decoration:none;">Logout</a>
+</div></body></html>"""
+
+
 @app.route('/')
 def index():
     if 'user' in session:
         if session.get('role') == 'admin':
             return redirect('/admin')
-        conn = sqlite3.connect('database.db')
-        cursor = conn.cursor()
-        cursor.execute("SELECT is_activated FROM users WHERE username = ?", (session['user'],))
-        row = cursor.fetchone()
-        conn.close()
-        if row and row[0] == 1:
-            return redirect('/dashboard')
-        return redirect('/activate')
-    return redirect('/login')
-
-@app.route('/login', methods=['GET', 'POST'])
-def login():
-    error_msg = ""
-    if request.method == 'POST':
-        username = request.form.get('username', '').strip()
-        password = request.form.get('password', '').strip()
-        conn = sqlite3.connect('database.db')
-        cursor = conn.cursor()
-        cursor.execute("SELECT * FROM users WHERE username = ? AND password = ?", (username, password))
-        user = cursor.fetchone()
-        conn.close()
-        if user:
-            session['user'] = user[1]
-            session['role'] = user[4]
-            if user[4] == 'admin' or user[1] == 'admin':
-                session['role'] = 'admin'
-                return redirect('/admin')
-            if user[5] == 1:
-                return redirect('/dashboard')
-            return redirect('/activate')
-        error_msg = "<div style='color:#f43f5e; font-size:12px; margin-bottom:10px;'>Invalid credentials!</div>"
-
-    login_html = "<!DOCTYPE html><html><head><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"><title>STC ULTRA - Login</title><style>" + BASE_STYLE + "</style></head><body>" \
-                 "<div class=\"mobile-frame\" style=\"justify-content:center;\">" \
-                 "<div style=\"text-align:center; margin-bottom:30px;\">" \
-                 "<div style=\"font-family:'Orbitron'; font-size:22px; font-weight:900; color:#38bdf8;\">STC ULTRA</div>" \
-                 "<div style=\"font-size:12px; color:#94a3b8; margin-top:5px;\">AI CHART ANALYZER LOGIN</div></div>" \
-                 + error_msg + \
-                 "<form method=\"POST\">" \
-                 "<div style=\"margin-bottom:15px;\"><label style=\"font-size:11px; color:#94a3b8; font-family:'Orbitron';\">USERNAME</label>" \
-                 "<input type=\"text\" name=\"username\" required style=\"width:100%; padding:12px; background:#0f172a; border:1px solid rgba(56,189,248,0.3); color:#fff; border-radius:10px; margin-top:5px;\"></div>" \
-                 "<div style=\"margin-bottom:20px;\"><label style=\"font-size:11px; color:#94a3b8; font-family:'Orbitron';\">PASSWORD</label>" \
-                 "<input type=\"password\" name=\"password\" required style=\"width:100%; padding:12px; background:#0f172a; border:1px solid rgba(56,189,248,0.3); color:#fff; border-radius:10px; margin-top:5px;\"></div>" \
-                 "<button type=\"submit\" class=\"btn-cyan\">LOGIN SYSTEM</button></form>" \
-                 "<div style=\"text-align:center; margin-top:20px; font-size:12px; color:#94a3b8;\">No account? <a href=\"/register\" style=\"color:#38bdf8; text-decoration:none;\">Register</a></div>" \
-                 "</div></body></html>"
-    return Response(login_html, mimetype='text/html')
-
-@app.route('/register', methods=['GET', 'POST'])
-def register():
-    error_msg = ""
-    if request.method == 'POST':
-        username = request.form.get('username', '').strip()
-        email = request.form.get('email', '').strip()
-        password = request.form.get('password', '').strip()
-        try:
-            conn = sqlite3.connect('database.db')
-            cursor = conn.cursor()
-            cursor.execute("INSERT INTO users (username, email, password, role, is_activated) VALUES (?, ?, ?, ?, ?)", 
-                           (username, email, password, 'user', 0))
-            conn.commit()
-            conn.close()
-            session['user'] = username
-            session['role'] = 'user'
-            return redirect('/activate')
-        except sqlite3.IntegrityError:
-            error_msg = "<div style='color:#f43f5e; font-size:12px; margin-bottom:10px;'>Username taken!</div>"
-        except Exception as e:
-            error_msg = "<div style='color:#f43f5e; font-size:12px; margin-bottom:10px;'>Error: " + str(e) + "</div>"
-
-    register_html = "<!DOCTYPE html><html><head><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"><title>STC ULTRA - Register</title><style>" + BASE_STYLE + "</style></head><body>" \
-                    "<div class=\"mobile-frame\" style=\"justify-content:center;\">" \
-                    "<div style=\"text-align:center; margin-bottom:30px;\">" \
-                    "<div style=\"font-family:'Orbitron'; font-size:22px; font-weight:900; color:#38bdf8;\">STC ULTRA</div>" \
-                    "<div style=\"font-size:12px; color:#94a3b8; margin-top:5px;\">CREATE NEW ACCOUNT</div></div>" \
-                    + error_msg + \
-                    "<form method=\"POST\">" \
-                    "<div style=\"margin-bottom:12px;\"><label style=\"font-size:11px; color:#94a3b8; font-family:'Orbitron';\">USERNAME</label>" \
-                    "<input type=\"text\" name=\"username\" required style=\"width:100%; padding:12px; background:#0f172a; border:1px solid rgba(56,189,248,0.3); color:#fff; border-radius:10px; margin-top:4px;\"></div>" \
-                    "<div style=\"margin-bottom:12px;\"><label style=\"font-size:11px; color:#94a3b8; font-family:'Orbitron';\">GMAIL</label>" \
-                    "<input type=\"email\" name=\"email\" required style=\"width:100%; padding:12px; background:#0f172a; border:1px solid rgba(56,189,2
+        conn = sqlite3.connect('da
