@@ -240,24 +240,22 @@ def login():
             if user[5] == 1:
                 return redirect('/dashboard')
             return redirect('/activate')
-        error_msg = '<div style="color:#f43f5e; font-size:12px; margin-bottom:10px;">Invalid credentials!</div>'
+        error_msg = "<div style='color:#f43f5e; font-size:12px; margin-bottom:10px;'>Invalid credentials!</div>"
 
-    login_html = """<!DOCTYPE html><html><head><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>STC ULTRA - Login</title><style>""" + BASE_STYLE + """</style></head><body>
-    <div class="mobile-frame" style="justify-content:center;">
-        <div style="text-align:center; margin-bottom:30px;">
-            <div style="font-family:'Orbitron'; font-size:22px; font-weight:900; color:#38bdf8;">STC ULTRA</div>
-            <div style="font-size:12px; color:#94a3b8; margin-top:5px;">AI CHART ANALYZER LOGIN</div>
-        </div>
-        """ + error_msg + """
-        <form method="POST">
-            <div style="margin-bottom:15px;"><label style="font-size:11px; color:#94a3b8; font-family:'Orbitron';">USERNAME</label>
-            <input type="text" name="username" required style="width:100%; padding:12px; background:#0f172a; border:1px solid rgba(56,189,248,0.3); color:#fff; border-radius:10px; margin-top:5px;"></div>
-            <div style="margin-bottom:20px;"><label style="font-size:11px; color:#94a3b8; font-family:'Orbitron';">PASSWORD</label>
-            <input type="password" name="password" required style="width:100%; padding:12px; background:#0f172a; border:1px solid rgba(56,189,248,0.3); color:#fff; border-radius:10px; margin-top:5px;"></div>
-            <button type="submit" class="btn-cyan">LOGIN SYSTEM</button>
-        </form>
-        <div style="text-align:center; margin-top:20px; font-size:12px; color:#94a3b8;">No account? <a href="/register" style="color:#38bdf8; text-decoration:none;">Register</a></div>
-    </div></body></html>"""
+    login_html = "<!DOCTYPE html><html><head><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"><title>STC ULTRA - Login</title><style>" + BASE_STYLE + "</style></head><body>" \
+                 "<div class=\"mobile-frame\" style=\"justify-content:center;\">" \
+                 "<div style=\"text-align:center; margin-bottom:30px;\">" \
+                 "<div style=\"font-family:'Orbitron'; font-size:22px; font-weight:900; color:#38bdf8;\">STC ULTRA</div>" \
+                 "<div style=\"font-size:12px; color:#94a3b8; margin-top:5px;\">AI CHART ANALYZER LOGIN</div></div>" \
+                 + error_msg + \
+                 "<form method=\"POST\">" \
+                 "<div style=\"margin-bottom:15px;\"><label style=\"font-size:11px; color:#94a3b8; font-family:'Orbitron';\">USERNAME</label>" \
+                 "<input type=\"text\" name=\"username\" required style=\"width:100%; padding:12px; background:#0f172a; border:1px solid rgba(56,189,248,0.3); color:#fff; border-radius:10px; margin-top:5px;\"></div>" \
+                 "<div style=\"margin-bottom:20px;\"><label style=\"font-size:11px; color:#94a3b8; font-family:'Orbitron';\">PASSWORD</label>" \
+                 "<input type=\"password\" name=\"password\" required style=\"width:100%; padding:12px; background:#0f172a; border:1px solid rgba(56,189,248,0.3); color:#fff; border-radius:10px; margin-top:5px;\"></div>" \
+                 "<button type=\"submit\" class=\"btn-cyan\">LOGIN SYSTEM</button></form>" \
+                 "<div style=\"text-align:center; margin-top:20px; font-size:12px; color:#94a3b8;\">No account? <a href=\"/register\" style=\"color:#38bdf8; text-decoration:none;\">Register</a></div>" \
+                 "</div></body></html>"
     return Response(login_html, mimetype='text/html')
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -278,21 +276,18 @@ def register():
             session['role'] = 'user'
             return redirect('/activate')
         except sqlite3.IntegrityError:
-            error_msg = '<div style="color:#f43f5e; font-size:12px; margin-bottom:10px;">Username taken!</div>'
+            error_msg = "<div style='color:#f43f5e; font-size:12px; margin-bottom:10px;'>Username taken!</div>"
         except Exception as e:
-            error_msg = f'<div style="color:#f43f5e; font-size:12px; margin-bottom:10px;">Error: {str(e)}</div>'
+            error_msg = "<div style='color:#f43f5e; font-size:12px; margin-bottom:10px;'>Error: " + str(e) + "</div>"
 
-    register_html = """<!DOCTYPE html><html><head><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>STC ULTRA - Register</title><style>""" + BASE_STYLE + """</style></head><body>
-    <div class="mobile-frame" style="justify-content:center;">
-        <div style="text-align:center; margin-bottom:30px;">
-            <div style="font-family:'Orbitron'; font-size:22px; font-weight:900; color:#38bdf8;">STC ULTRA</div>
-            <div style="font-size:12px; color:#94a3b8; margin-top:5px;">CREATE NEW ACCOUNT</div>
-        </div>
-        """ + error_msg + """
-        <form method="POST">
-            <div style="margin-bottom:12px;"><label style="font-size:11px; color:#94a3b8; font-family:'Orbitron';">USERNAME</label>
-            <input type="text" name="username" required style="width:100%; padding:12px; background:#0f172a; border:1px solid rgba(56,189,248,0.3); color:#fff; border-radius:10px; margin-top:4px;"></div>
-            <div style="margin-bottom:12px;"><label style="font-size:11px; color:#94a3b8; font-family:'Orbitron';">GMAIL</label>
-            <input type="email" name="email" required style="width:100%; padding:12px; background:#0f172a; border:1px solid rgba(56,189,248,0.3); color:#fff; border-radius:10px; margin-top:4px;"></div>
-            <div style="margin-bottom:20px;"><label style="font-size:11px; color:#94a3b8; font-family:'Orbitron';">PASSWORD</label>
-            <input type="password" name="password" required style="width:100%; padding:12px; background:#0f172a; bord
+    register_html = "<!DOCTYPE html><html><head><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"><title>STC ULTRA - Register</title><style>" + BASE_STYLE + "</style></head><body>" \
+                    "<div class=\"mobile-frame\" style=\"justify-content:center;\">" \
+                    "<div style=\"text-align:center; margin-bottom:30px;\">" \
+                    "<div style=\"font-family:'Orbitron'; font-size:22px; font-weight:900; color:#38bdf8;\">STC ULTRA</div>" \
+                    "<div style=\"font-size:12px; color:#94a3b8; margin-top:5px;\">CREATE NEW ACCOUNT</div></div>" \
+                    + error_msg + \
+                    "<form method=\"POST\">" \
+                    "<div style=\"margin-bottom:12px;\"><label style=\"font-size:11px; color:#94a3b8; font-family:'Orbitron';\">USERNAME</label>" \
+                    "<input type=\"text\" name=\"username\" required style=\"width:100%; padding:12px; background:#0f172a; border:1px solid rgba(56,189,248,0.3); color:#fff; border-radius:10px; margin-top:4px;\"></div>" \
+                    "<div style=\"margin-bottom:12px;\"><label style=\"font-size:11px; color:#94a3b8; font-family:'Orbitron';\">GMAIL</label>" \
+                    "<input type=\"email\" name=\"email\" required style=\"width:100%; padding:12px; background:#0f172a; border:1px solid rgba(56,189,2
